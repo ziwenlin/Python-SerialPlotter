@@ -14,7 +14,7 @@ class TestSetupLibraries(unittest.TestCase):
         import matplotlib.pyplot as plt
         plt.plot([1, 2, 3, 4])
         plt.ylabel('some numbers')
-        plt.show()
+        # plt.show()
         self.assertTrue(True, 'matplotlib_plot')
 
     def test_tkinter(self):
@@ -23,3 +23,11 @@ class TestSetupLibraries(unittest.TestCase):
         except:
             self.assertFalse(False, 'tkinter')
         self.assertTrue(True, 'tkinter')
+
+    def test_serial(self):
+        try:
+            import serial.tools.list_ports
+            print(serial.tools.list_ports.comports())
+        except:
+            self.assertFalse(False, 'serial')
+        self.assertTrue(True, 'serial')
