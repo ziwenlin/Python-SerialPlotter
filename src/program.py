@@ -5,10 +5,10 @@ import threading
 
 
 class SerialThread(threading.Thread):
-    def __init__(self, event):
+    def __init__(self, event, serial_handler):
         super().__init__(daemon=True)
-        self.is_running = event
-        self.serial = SerialHandler()
+        self.is_running: threading.Event = event
+        self.serial: SerialHandler = serial_handler
 
     def run(self):
         self.is_running.set()
@@ -19,7 +19,7 @@ class SerialThread(threading.Thread):
 
 class SerialHandler:
     def __init__(self):
-        self.arduino: serial.Serial
+        self.arduino = serial.Serial()
         self.is_running = threading.Event()
         self.queue_in = queue.Queue()
         self.queue_out = queue.Queue()
@@ -32,6 +32,8 @@ class SerialHandler:
             if p.name == name:
                 break
         else:
+            return None
+        if self.is_running.is_set():
             return False
         self.arduino = serial.Serial(name)
         self.is_running.set()
@@ -40,8 +42,8 @@ class SerialHandler:
     def disconnect(self):
         if not self.is_running.is_set():
             return
-        self.arduino.close()
         self.is_running.clear()
+        self.arduino.close()
 
     def read(self):
         if not self.is_running.is_set():
@@ -54,8 +56,8 @@ class SerialHandler:
         if not self.is_running.is_set():
             return
         while not self.queue_out.empty():
-            data = self.queue_out.get()
-            self.arduino.write(data)
+            data: str = self.queue_out.get()
+            self.arduino.write(data.encode())
 
     def reorder(self):
         if not len(self.data):
@@ -112,25 +114,28 @@ def main1():
 
 def main():
     print('Running main()\n')
-    is_running = threading.Event()
-    thread = SerialThread(is_running)
+    running = threading.Event()
+    arduino = SerialHandler()
+    thread = SerialThread(running, arduino)
     thread.start()
     success = thread.serial.connect('COM3')
     if not success:
         print('No COM3')
     sleep(4)
-    is_running.clear()
+    running.clear()
     thread.join(1)
-    for text in thread.serial.data[:8]:
-        print(text)
+    q = arduino.queue_in
+    for _ in range(8):
+        if not q.empty():
+            print(q.get())
 
 
 if __name__ == '__main__':
     from time import sleep
 
+    main()
+    sleep(1)
     # main0()
     # sleep(1)
     # main1()
     # sleep(1)
-    main()
-    sleep(1)

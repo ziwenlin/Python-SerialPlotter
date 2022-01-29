@@ -27,7 +27,7 @@ class TestSetupLibraries(unittest.TestCase):
     def test_serial(self):
         try:
             import serial.tools.list_ports
-            print(serial.tools.list_ports.comports())
+            # print(serial.tools.list_ports.comports())
         except:
             self.assertFalse(False, 'serial')
         self.assertTrue(True, 'serial')

@@ -1,5 +1,7 @@
 import tkinter as tk
 
+from interfacegraph import GraphBase
+
 
 def make_check_button(root, interface_variables: dict, name):
     interface_variables[name] = check_var = tk.IntVar(root, value=0)
@@ -52,6 +54,11 @@ def make_base_frame(root):
         side=tk.LEFT
     )
     return frame
+
+def make_graph(root):
+    frame = make_base_frame(root)
+    graph = GraphBase(frame)
+    return graph
 
 
 def _make_scrolling_event(tk_var: tk.Variable, multiplier=1):
