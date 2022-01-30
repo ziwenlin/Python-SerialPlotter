@@ -1,12 +1,13 @@
 import tkinter as tk
 
-import matplotlib.axes
 import numpy.random
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 from matplotlib.axes import Axes
 from typing import List, Dict
+
+UPDATE_INTERVAL = 20
 
 
 class GraphBase:
@@ -22,7 +23,7 @@ class GraphBase:
 
         self.root = root
         self.draw()
-        self.ax: Axes = self.figure.add_subplot()
+        self.plot: Axes = self.figure.add_subplot()
         self.lines: Dict[str, Line2D] = {}
 
     def update(self, data: Dict[str, list]):
@@ -30,9 +31,13 @@ class GraphBase:
             length = len(y_data)
             x_data = [x for x in range(length)]
             if key not in self.lines:
-                lines = self.ax.plot(x_data, y_data)
+                lines = self.plot.plot(x_data, y_data)
                 self.lines.update({key: lines[0]})
             self.lines.get(key).set_data((x_data, y_data))
+        for key in list(self.lines):
+            if key not in data.keys():
+                line = self.lines.pop(key)
+                line.remove()
 
     def draw(self):
         def draw():
@@ -41,9 +46,9 @@ class GraphBase:
                 self.canvas.flush_events()
             except:
                 pass
-            self.root.after(40, draw)
+            self.root.after(UPDATE_INTERVAL, draw)
 
-        self.root.after(40, draw)
+        self.root.after(UPDATE_INTERVAL, draw)
 
 
 class Graph:
@@ -105,15 +110,17 @@ def main0():
         data_y[-2] = a
         graph.update(data_y)
         graph.draw()
-        root.after(10, update)
+        root.after(UPDATE_INTERVAL, update)
 
-    root.after(100, update)
+    root.after(UPDATE_INTERVAL, update)
     root.mainloop()
 
 
 def main():
     root = tk.Tk()
-    graph = GraphBase(root)
+    frame = tk.Frame(root)
+    frame.pack()
+    graph = GraphBase(frame)
 
     def update():
         increase[0] += 1
@@ -124,8 +131,8 @@ def main():
         if increase[0] > 20:
             data.update({'Test2': numpy.random.random(increase[0] + 4)})
 
-        graph.ax.set_ylim(0, 1)
-        graph.ax.set_xlim(0, increase[0])
+        graph.plot.set_ylim(0, 1)
+        graph.plot.set_xlim(0, increase[0])
         graph.update(data)
 
     increase = [5]

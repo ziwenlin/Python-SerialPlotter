@@ -4,19 +4,28 @@ import threading
 
 from interfacegraph import GraphBase
 from program import SerialHandler, SerialThread
-from typing import Dict
+from typing import Dict, List
 
+UPDATE_INTERVAL = 500
 
 
 class InterfaceVariables:
-    tk_data: Dict[str, tk.Variable] = {}
+    tk_vars: Dict[str, tk.Variable] = {}
+    tk_data: Dict[str, list] = {}
     serial_data: Dict[str, list] = {}
     graph_data: Dict[any, list] = {}
     arduino = SerialHandler()
     running = threading.Event()
 
     def __init__(self):
-        self.thread = SerialThread(self.running, self.arduino)
+        self.thread_serial = SerialThread(self.running, self.arduino)
+        self.threads: List[threading.Thread] = [self.thread_serial]
+
+
+def make_thread(target, interface: InterfaceVariables):
+    thread = threading.Thread(target=target, daemon=False)
+    thread.start()
+    interface.threads.append(thread)
 
 
 def make_check_button(root, interface_variables: dict, name):
@@ -46,17 +55,18 @@ def make_labeled_entry(root, name):
     return entry
 
 
-def make_updateable_label(root, interface_variables: dict, name):
+def make_updatable_label(root: tk.Widget, interface_variables: dict, name):
     interface_variables[name] = label_var = tk.StringVar(root)
     label = tk.Label(root, textvariable=label_var, anchor='nw', padx=5, height=1)
     label.pack(fill=tk.BOTH)
+
     def update_label():
         text = label_var.get()
         size = text.count('\n') + 1
         label.config(height=size)
-        root.after(500, update_label)
+        root.after(UPDATE_INTERVAL, update_label)
 
-    root.after(500, update_label)
+    root.after(UPDATE_INTERVAL, update_label)
 
 
 def make_spacer(root, size):
@@ -70,16 +80,17 @@ def make_button(root, command, name):
 
 
 def make_base_frame(root):
-    frame = tk.Frame(root, width=1600)
+    frame = tk.Frame(root, width=200)
     frame.pack(
-        expand=False,
+        # expand=False,
+        expand=True,
         fill=tk.BOTH,
         side=tk.LEFT
     )
     return frame
 
 
-def make_graph(root):
+def make_graph(root) -> GraphBase:
     try:
         graph = GraphBase(root)
     except:
@@ -87,24 +98,34 @@ def make_graph(root):
     return graph
 
 
+def make_named_spinbox(root, name: str):
+    """Creates a spinbox with an explaining text to the left.
+    This spinbox is scrollable so that the values are easily changed."""
+    frame = tk.Frame(root)
+    frame.pack(fill=tk.BOTH, expand=1)
+    label = tk.Label(frame, text=name)
+    label.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+    spinbox_var = tk.StringVar(frame, value='0.00')
+    spinbox = tk.Spinbox(frame, textvariable=spinbox_var, from_=-10000, to=10000, increment=0.05)
+    spinbox.bind('<MouseWheel>', _make_scrolling_event(spinbox_var, 0.5))
+    spinbox.pack(side=tk.RIGHT)
+    return spinbox_var
+
+
 def make_combobox(root, interface_variables: dict, selector):
     make_spaced_label(root, f'Select {selector}:')
     combobox = ttk.Combobox(root)
     combobox.pack()
     combobox.set('None')
-    interface_variables[selector] = values = []
+    interface_variables[selector] = ['None']
 
     def update_combobox():
-        if 'None' in values:
-            values.remove('None')
-        if len(values) == 0:
-            values.append('None')
-        combobox['values'] = values
+        combobox['values'] = values = interface_variables[selector]
         if combobox.get() not in values:
             combobox.set(values[0])
-        root.after(500, update_combobox)
+        root.after(UPDATE_INTERVAL, update_combobox)
 
-    root.after(500, update_combobox)
+    root.after(UPDATE_INTERVAL, update_combobox)
     return combobox
 
 

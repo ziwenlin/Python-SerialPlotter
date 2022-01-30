@@ -4,6 +4,16 @@ import serial.tools.list_ports
 import threading
 from time import sleep
 
+test_count = 0
+def test_print():
+    global test_count
+    test_count += 1
+    if test_count % 100:
+        print(test_count % 10, end='')
+    else:
+        print(test_count % 10)
+        test_count = 0
+
 
 class SerialThread(threading.Thread):
     def __init__(self, event, serial_handler):
@@ -38,7 +48,7 @@ class SerialHandler:
             return None
         if self.is_running.is_set():
             return False
-        self.serial = serial.Serial(name)
+        self.serial = serial.Serial(name, timeout=0)
         self.is_running.set()
         return True
 
@@ -68,8 +78,13 @@ class SerialHandler:
             return
         data: str = self.data.pop(0)
         data: list = data.split(',')
-        data: list = [float(d) for d in data]
-        self.queue_in.put(data)
+        if len(data) < 3:
+            return
+        try:
+            data: list = [float(d) for d in data]
+            self.queue_in.put(data)
+        except ValueError:
+            return
 
     def format(self, buffer: bytes):
         for char in buffer.decode('utf-8'):
