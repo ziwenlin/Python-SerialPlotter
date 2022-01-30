@@ -1,6 +1,22 @@
 import tkinter as tk
+from tkinter import ttk
+import threading
 
 from interfacegraph import GraphBase
+from program import SerialHandler, SerialThread
+from typing import Dict
+
+
+
+class InterfaceVariables:
+    tk_data: Dict[str, tk.Variable] = {}
+    serial_data: Dict[str, list] = {}
+    graph_data: Dict[any, list] = {}
+    arduino = SerialHandler()
+    running = threading.Event()
+
+    def __init__(self):
+        self.thread = SerialThread(self.running, self.arduino)
 
 
 def make_check_button(root, interface_variables: dict, name):
@@ -32,8 +48,15 @@ def make_labeled_entry(root, name):
 
 def make_updateable_label(root, interface_variables: dict, name):
     interface_variables[name] = label_var = tk.StringVar(root)
-    label = tk.Label(root, textvariable=label_var, anchor='sw', padx=5, height=1)
+    label = tk.Label(root, textvariable=label_var, anchor='nw', padx=5, height=1)
     label.pack(fill=tk.BOTH)
+    def update_label():
+        text = label_var.get()
+        size = text.count('\n') + 1
+        label.config(height=size)
+        root.after(500, update_label)
+
+    root.after(500, update_label)
 
 
 def make_spacer(root, size):
@@ -49,16 +72,40 @@ def make_button(root, command, name):
 def make_base_frame(root):
     frame = tk.Frame(root, width=1600)
     frame.pack(
-        expand=True,
+        expand=False,
         fill=tk.BOTH,
         side=tk.LEFT
     )
     return frame
 
+
 def make_graph(root):
-    frame = make_base_frame(root)
-    graph = GraphBase(frame)
+    try:
+        graph = GraphBase(root)
+    except:
+        graph = None
     return graph
+
+
+def make_combobox(root, interface_variables: dict, selector):
+    make_spaced_label(root, f'Select {selector}:')
+    combobox = ttk.Combobox(root)
+    combobox.pack()
+    combobox.set('None')
+    interface_variables[selector] = values = []
+
+    def update_combobox():
+        if 'None' in values:
+            values.remove('None')
+        if len(values) == 0:
+            values.append('None')
+        combobox['values'] = values
+        if combobox.get() not in values:
+            combobox.set(values[0])
+        root.after(500, update_combobox)
+
+    root.after(500, update_combobox)
+    return combobox
 
 
 def _make_scrolling_event(tk_var: tk.Variable, multiplier=1):

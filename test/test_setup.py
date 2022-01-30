@@ -3,31 +3,57 @@ import unittest
 
 class TestSetupLibraries(unittest.TestCase):
 
+    @unittest.skip('This test takes 2 seconds to load')
     def test_matplotlib(self):
         try:
             import matplotlib
+            success = True
         except:
-            self.assertFalse(False, 'matplotlib')
-        self.assertTrue(True, 'matplotlib')
+            success = False
+        self.assertTrue(success, 'matplotlib')
 
+    @unittest.skip('This test takes 5 seconds to load')
     def test_matplotlib_plot(self):
-        import matplotlib.pyplot as plt
-        plt.plot([1, 2, 3, 4])
-        plt.ylabel('some numbers')
-        # plt.show()
-        self.assertTrue(True, 'matplotlib_plot')
+        try:
+            import matplotlib.pyplot as plt
+            plt.plot([1, 2, 3, 4])
+            plt.ylabel('some numbers')
+            # plt.show()
+            success = True
+        except:
+            success = False
+        self.assertTrue(success,'matplotlib_plot')
 
     def test_tkinter(self):
         try:
             import tkinter
+            success = True
         except:
-            self.assertFalse(False, 'tkinter')
-        self.assertTrue(True, 'tkinter')
+            success = False
+        self.assertTrue(success,'tkinter')
 
     def test_serial(self):
         try:
             import serial.tools.list_ports
-            # print(serial.tools.list_ports.comports())
+            import serial
+            success = True
         except:
-            self.assertFalse(False, 'serial')
-        self.assertTrue(True, 'serial')
+            success = False
+        self.assertTrue(success, 'serial')
+
+    def test_numpy(self):
+        try:
+            import numpy
+            success = True
+        except:
+            success = False
+        self.assertTrue(success, 'numpy')
+
+    def test_threading(self):
+        try:
+            import threading
+            success = True
+        except:
+            success = False
+        self.assertTrue(success, 'threading')
+

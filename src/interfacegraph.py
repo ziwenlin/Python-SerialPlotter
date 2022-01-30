@@ -11,8 +11,8 @@ from typing import List, Dict
 
 class GraphBase:
 
-    def __init__(self, root: tk.BaseWidget):
-        self.figure = Figure(figsize=(6, 4))
+    def __init__(self, root: tk.Widget):
+        self.figure = Figure(figsize=(9, 5))
         self.canvas = FigureCanvasTkAgg(self.figure, root)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill='both', expand=True)
@@ -36,11 +36,14 @@ class GraphBase:
 
     def draw(self):
         def draw():
-            self.canvas.draw()
-            self.canvas.flush_events()
-            self.root.after(20, draw)
+            try:
+                self.canvas.draw()
+                self.canvas.flush_events()
+            except:
+                pass
+            self.root.after(40, draw)
 
-        self.root.after(20, draw)
+        self.root.after(40, draw)
 
 
 class Graph:

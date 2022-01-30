@@ -2,6 +2,7 @@ import queue
 
 import serial.tools.list_ports
 import threading
+from time import sleep
 
 
 class SerialThread(threading.Thread):
@@ -13,13 +14,15 @@ class SerialThread(threading.Thread):
     def run(self):
         self.is_running.set()
         while self.is_running.is_set():
+            if not self.serial.is_running.is_set():
+                sleep(0.1)
             self.serial.read()
         self.serial.disconnect()
 
 
 class SerialHandler:
     def __init__(self):
-        self.arduino = serial.Serial()
+        self.serial = serial.Serial()
         self.is_running = threading.Event()
         self.queue_in = queue.Queue()
         self.queue_out = queue.Queue()
@@ -35,20 +38,21 @@ class SerialHandler:
             return None
         if self.is_running.is_set():
             return False
-        self.arduino = serial.Serial(name)
+        self.serial = serial.Serial(name)
         self.is_running.set()
         return True
 
     def disconnect(self):
         if not self.is_running.is_set():
-            return
+            return False
         self.is_running.clear()
-        self.arduino.close()
+        self.serial.close()
+        return True
 
     def read(self):
         if not self.is_running.is_set():
             return
-        buffer = self.arduino.read(10)
+        buffer = self.serial.read(10)
         self.format(buffer)
         self.reorder()
 
@@ -57,7 +61,7 @@ class SerialHandler:
             return
         while not self.queue_out.empty():
             data: str = self.queue_out.get()
-            self.arduino.write(data.encode())
+            self.serial.write(data.encode())
 
     def reorder(self):
         if not len(self.data):
@@ -85,11 +89,11 @@ def main0():
     print('Running main0()\n')
     list_comports = serial.tools.list_ports.comports()
     for c in list_comports:
-        print(c.device)
+        print(c.device, type(c.device))
         print(c.description)
         print(c.hwid)
         print(c.location)
-        print(c.name)
+        print(c.name, type(c.name))
         print(c.pid)
         print(c.manufacturer)
         print(c.serial_number)
@@ -131,11 +135,6 @@ def main():
 
 
 if __name__ == '__main__':
-    from time import sleep
-
-    main()
-    sleep(1)
-    # main0()
-    # sleep(1)
+    # main()
+    main0()
     # main1()
-    # sleep(1)
