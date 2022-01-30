@@ -12,7 +12,7 @@ UPDATE_INTERVAL = 500
 class InterfaceVariables:
     tk_vars: Dict[str, tk.Variable] = {}
     tk_data: Dict[str, list] = {}
-    filter_data: Dict[str, any] = {}
+    graph_data: Dict[str, any] = {}
     arduino = SerialHandler()
     running = threading.Event()
 

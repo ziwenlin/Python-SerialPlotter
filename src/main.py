@@ -1,7 +1,9 @@
 import tkinter as tk
+from queue import Queue
 
 from serial.tools.list_ports import comports
 
+from filehandler import csv_save_auto, csv_save_append, csv_save_create
 from interfacebuilder import make_base_frame, make_spaced_label, make_button, make_spacer, \
     make_updatable_label, InterfaceVariables, make_combobox, make_graph, make_thread, make_check_button, \
     make_named_spinbox, make_labeled_entry
@@ -20,12 +22,12 @@ def build_interface():
 
 
 def build_thread_interface(graph, interface: InterfaceVariables):
+    from time import sleep
+    filter_state = interface.graph_data['state']
+    graph_filters = interface.tk_data.get('graph')
+    tk_vars = interface.tk_vars
+
     def interface_manager():
-        from time import sleep
-        sleep(1)
-        filter_state = interface.filter_data['state']
-        graph_filters = interface.tk_data.get('graph')
-        tk_vars = interface.tk_vars
         while interface.running.is_set():
             sleep(0.4)
             if not interface.running.is_set():
@@ -63,33 +65,89 @@ def build_thread_interface(graph, interface: InterfaceVariables):
 
 
 def build_thread_graph(graph, interface: InterfaceVariables):
+    from time import sleep
+    csv_queue: Queue = interface.graph_data['auto csv']
+    filter_state: dict = interface.graph_data['state']
+    data: list = []
+    queue = interface.arduino.queue_in
+
+    def get_queue_data():
+        while not queue.empty():
+            serial_data = queue.get()
+            for index, value in enumerate(serial_data):
+                try:
+                    data[index].append(value)
+                except IndexError:
+                    data.append([value])
+            csv_queue.put(serial_data)
+
+    def clean_up_data():
+        if len(data) > 1000:
+            del data[:500]
+
+    def get_graph_data():
+        graph_data: dict = {}
+        for index, values in enumerate(data):
+            if index in filter_state and filter_state[index] is True:
+                graph_data.update({index: values[-200:]})
+        return graph_data
+
     def serial_graph():
-        from time import sleep
-        sleep(1)
-        filter_state: dict = interface.filter_data['state']
-        data: list = []
-        queue = interface.arduino.queue_in
         while interface.running.is_set():
-            sleep(0.1)
-            if not interface.running.is_set():
-                return
             if queue.empty():
                 sleep(0.5)
                 continue
-            while not queue.empty():
-                serial_data = queue.get()
-                for index, value in enumerate(serial_data):
-                    try:
-                        data[index].append(value)
-                    except IndexError:
-                        data.append([value])
-            graph_data: dict = {}
-            for index, values in enumerate(data):
-                if index in filter_state and filter_state[index] is True:
-                    graph_data.update({index: values[-200:]})
-            graph.update(graph_data)
+            get_queue_data()
+            clean_up_data()
+            graph.update(get_graph_data())
+            sleep(0.1)
 
     return serial_graph
+
+
+def build_thread_csv(trigger: dict, interface: InterfaceVariables):
+    from time import sleep
+    auto_queue: Queue = interface.graph_data['auto csv']
+    record_data: list = interface.graph_data['record csv']
+    auto_data = []
+    auto_save_var = interface.tk_vars['Auto save']
+
+    def get_queue_data():
+        record: bool = trigger['start']
+        while not auto_queue.empty():
+            serial_data = auto_queue.get()
+            if record:
+                record_data.append(serial_data)
+            auto_data.append(serial_data)
+
+    def auto_save_data():
+        if len(auto_data) < 1000:
+            return
+        record: bool = trigger['start']
+        if record and auto_save_var.get() == 1:
+            name = trigger['name']
+            csv_save_append(name, record_data)
+            record_data.clear()
+        csv_save_auto(auto_data)
+        auto_data.clear()
+
+    def csv_manager():
+        while interface.running.is_set():
+            if auto_queue.empty():
+                sleep(0.5)
+                continue
+            get_queue_data()
+            auto_save_data()
+            sleep(0.1)
+        record: bool = trigger['start']
+        if record or auto_save_var.get() == 1:
+            name = trigger['name']
+            csv_save_append(name, record_data)
+            record_data.clear()
+        csv_save_auto(auto_data)
+        auto_data.clear()
+
+    return csv_manager
 
 
 def panel_graph_control(base, interface: InterfaceVariables):
@@ -121,7 +179,7 @@ def panel_graph_filter(base, interface: InterfaceVariables):
     make_spaced_label(frame, 'Graph line filters:')
     for name in button_list:
         make_check_button(frame, interface.tk_vars, name)
-    interface.filter_data['state'] = {}
+    interface.graph_data['state'] = {}
 
 
 def panel_graph_view(base, interface: InterfaceVariables):
@@ -211,13 +269,36 @@ def panel_port_selector(base, interface: InterfaceVariables):
 
 def panel_save_control(base, interface: InterfaceVariables):
     def save_command():
-        pass
+        record_data = interface.graph_data['record csv']
+        auto_save_var = interface.tk_vars['Auto save']
+        file_append_var = interface.tk_vars['File append']
+        file_overwrite_var = interface.tk_vars['File overwrite']
+        name = entry.get()
+        if auto_save_var.get() == 1:
+            return
+        elif file_append_var.get() == 1:
+            success = csv_save_append(name, record_data)
+        elif file_overwrite_var.get() == 1:
+            success = csv_save_create(name, record_data)
+        else:
+            success = csv_save_create(name, record_data)
+        if auto_save_var.get() == 0:
+            record_data.clear()
+        if success is True:
+            success = f'Saved data to {name}.csv'
+        elif success is False:
+            success = f'Could not save data to {name}.csv'
+        else: # Fatal error
+            success = f'Something went wrong with {name}.csv'
+        interface.tk_vars.get('saving').set(success)
 
     def start_command():
-        pass
+        trigger['start'] = True
+        interface.tk_vars.get('saving').set('Started recording')
 
     def pause_command():
-        pass
+        trigger['start'] = False
+        interface.tk_vars.get('saving').set('Paused recording')
 
     frame = make_base_frame(base)
     make_spacer(frame, 2)
@@ -226,11 +307,17 @@ def panel_save_control(base, interface: InterfaceVariables):
     make_button(frame, start_command, 'Start')
     make_button(frame, pause_command, 'Pause')
     make_button(frame, save_command, 'Save')
+    make_updatable_label(frame, interface.tk_vars, 'saving')
     make_spacer(frame, 20)  # Give some space for those dangerous buttons
-    make_check_button(frame, interface.tk_vars, 'Auto-Save')
+    make_check_button(frame, interface.tk_vars, 'Auto save')
     make_check_button(frame, interface.tk_vars, 'File append')
     make_check_button(frame, interface.tk_vars, 'File overwrite')
     make_spacer(frame, 20)  # Give some space for those dangerous buttons
+
+    trigger = {'start': False, 'name': entry.get()}
+    interface.graph_data['record csv'] = []
+    interface.graph_data['auto csv'] = Queue()
+    make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
 
 
 def main():
