@@ -74,9 +74,12 @@ class SerialHandler:
         if not self.is_running.is_set():
             return
         buffer = self.serial.read(32)
-        self.format(buffer)
-        self.reorder()
-
+        try:
+            self.format(buffer)
+            self.reorder()
+        except:
+            self.data = ''
+            self.buffer = ''
     def write(self):
         if not self.is_running.is_set():
             return

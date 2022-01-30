@@ -21,18 +21,20 @@ class InterfaceVariables:
         self.threads: List[threading.Thread] = [thread_serial]
 
     def start_threads(self):
+        self.running.is_set()
         for thread in self.threads:
             thread.start()
 
     def stop_threads(self):
         self.running.clear()
         tries = 1
+        # print('Active threads now:', threading.active_count())
         while threading.active_count() > 1:
             for thread in self.threads:
-                thread.join(1)
-                if tries > 3 and thread.is_alive():
+                thread.join(2)
+                if tries > 2 and thread.is_alive():
                     print('Stuborn thread:', thread.name)
-            if tries > 5:
+            if tries > 3:
                 print('Force close python')
                 break
             else:
