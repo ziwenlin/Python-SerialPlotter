@@ -31,7 +31,7 @@ class GraphBase:
             length = len(y_data)
             x_data = [x for x in range(length)]
             if key not in self.lines:
-                lines = self.plot.plot(x_data, y_data)
+                lines = self.plot.plot(x_data, y_data, linewidth=1)
                 self.lines.update({key: lines[0]})
             self.lines.get(key).set_data((x_data, y_data))
         for key in list(self.lines):

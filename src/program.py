@@ -5,6 +5,8 @@ import threading
 from time import sleep
 
 test_count = 0
+
+
 def test_print():
     global test_count
     test_count += 1
@@ -17,7 +19,7 @@ def test_print():
 
 class SerialThread(threading.Thread):
     def __init__(self, event, serial_handler):
-        super().__init__(daemon=True)
+        super().__init__(daemon=False, name='Serial reader thread')
         self.is_running: threading.Event = event
         self.serial: SerialHandler = serial_handler
 
@@ -26,7 +28,11 @@ class SerialThread(threading.Thread):
         while self.is_running.is_set():
             if not self.serial.is_running.is_set():
                 sleep(0.1)
-            self.serial.read()
+            while self.serial.available() > 10:
+                self.serial.read()
+            self.serial.write()
+            sleep(0.1)
+
         self.serial.disconnect()
 
 
@@ -39,6 +45,11 @@ class SerialHandler:
         self.data = []
         self.buffer = ''
         self.counter = 0
+
+    def available(self):
+        if not self.is_running.is_set():
+            return 0
+        return self.serial.inWaiting()
 
     def connect(self, name):
         for p in serial.tools.list_ports.comports():
@@ -62,7 +73,7 @@ class SerialHandler:
     def read(self):
         if not self.is_running.is_set():
             return
-        buffer = self.serial.read(10)
+        buffer = self.serial.read(32)
         self.format(buffer)
         self.reorder()
 

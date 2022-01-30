@@ -12,19 +12,35 @@ UPDATE_INTERVAL = 500
 class InterfaceVariables:
     tk_vars: Dict[str, tk.Variable] = {}
     tk_data: Dict[str, list] = {}
-    serial_data: Dict[str, list] = {}
-    graph_data: Dict[any, list] = {}
+    filter_data: Dict[str, any] = {}
     arduino = SerialHandler()
     running = threading.Event()
 
     def __init__(self):
-        self.thread_serial = SerialThread(self.running, self.arduino)
-        self.threads: List[threading.Thread] = [self.thread_serial]
+        thread_serial = SerialThread(self.running, self.arduino)
+        self.threads: List[threading.Thread] = [thread_serial]
+
+    def start_threads(self):
+        for thread in self.threads:
+            thread.start()
+
+    def stop_threads(self):
+        self.running.clear()
+        tries = 1
+        while threading.active_count() > 1:
+            for thread in self.threads:
+                thread.join(1)
+                if tries > 3 and thread.is_alive():
+                    print('Stuborn thread:', thread.name)
+            if tries > 5:
+                print('Force close python')
+                break
+            else:
+                tries += 1
 
 
-def make_thread(target, interface: InterfaceVariables):
-    thread = threading.Thread(target=target, daemon=False)
-    thread.start()
+def make_thread(target, interface: InterfaceVariables, name):
+    thread = threading.Thread(target=target, daemon=True, name=name)
     interface.threads.append(thread)
 
 
@@ -71,7 +87,7 @@ def make_updatable_label(root: tk.Widget, interface_variables: dict, name):
 
 def make_spacer(root, size):
     spacer = tk.Frame(root, height=size)
-    spacer.pack()
+    spacer.pack(fill=tk.BOTH)
 
 
 def make_button(root, command, name):
@@ -102,12 +118,12 @@ def make_named_spinbox(root, name: str):
     """Creates a spinbox with an explaining text to the left.
     This spinbox is scrollable so that the values are easily changed."""
     frame = tk.Frame(root)
-    frame.pack(fill=tk.BOTH, expand=1)
+    frame.pack(fill=tk.BOTH)
     label = tk.Label(frame, text=name)
     label.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
     spinbox_var = tk.StringVar(frame, value='0.00')
-    spinbox = tk.Spinbox(frame, textvariable=spinbox_var, from_=-10000, to=10000, increment=0.05)
-    spinbox.bind('<MouseWheel>', _make_scrolling_event(spinbox_var, 0.5))
+    spinbox = tk.Spinbox(frame, textvariable=spinbox_var, from_=-10000, to=10000, increment=0.5)
+    spinbox.bind('<MouseWheel>', _make_scrolling_event(spinbox_var, 1))
     spinbox.pack(side=tk.RIGHT)
     return spinbox_var
 
@@ -115,7 +131,7 @@ def make_named_spinbox(root, name: str):
 def make_combobox(root, interface_variables: dict, selector):
     make_spaced_label(root, f'Select {selector}:')
     combobox = ttk.Combobox(root)
-    combobox.pack()
+    combobox.pack(fill=tk.BOTH)
     combobox.set('None')
     interface_variables[selector] = ['None']
 
