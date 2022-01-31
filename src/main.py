@@ -18,6 +18,7 @@ def build_interface():
     panel_graph_control(top, interface)
     panel_graph_filter(top, interface)
     panel_graph_view(top, interface)
+    interface.import_settings()
 
     return top, interface
 
@@ -48,7 +49,7 @@ def panel_graph_filter(base, interface: InterfaceVariables):
 
     frame = make_base_frame(base)
     make_spacer(frame, 2)
-    make_spaced_label(frame, 'Graph line filters:')
+    make_spaced_label(frame, 'Graph filters:')
     # graph_filter = tk.Frame(frame)
     for name in button_list:
         make_check_button(frame, interface.tk_vars, name)

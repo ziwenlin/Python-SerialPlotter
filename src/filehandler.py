@@ -27,7 +27,7 @@ def json_load(settings=None):
 
 def json_save(settings: dict):
     with open(SETTINGS_FILE, 'w+') as jsf:
-        js = json.dumps(settings)
+        js = json.dumps(settings, indent=1)
         jsf.write(js)
 
 

@@ -22,9 +22,6 @@ class InterfaceVariables:
         thread_serial = SerialThread(self.running, self.arduino)
         self.threads: List[threading.Thread] = [thread_serial]
 
-    def __del__(self):
-        self.export_settings()
-
     def import_settings(self):
         settings = self.settings
         for key, value in settings.get('tk_vars').items():
