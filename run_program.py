@@ -1,8 +1,6 @@
-from main import build_interface
+from main import __main__
+
+'''Only run this through PyCharm'''
 
 if __name__ == '__main__':
-    root, interface = build_interface()
-    interface.start_threads()
-    root.mainloop()
-    interface.stop_threads()
-    interface.export_settings()
+    __main__()

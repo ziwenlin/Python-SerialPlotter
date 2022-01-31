@@ -163,7 +163,7 @@ def panel_save_control(base, interface: InterfaceVariables):
             success = f'Saved data to {name}.csv'
         elif success is False:
             success = f'Could not save data to {name}.csv'
-        else: # Fatal error
+        else:  # Fatal error
             success = f'Something went wrong with {name}.csv'
         interface.tk_vars.get('saving').set(success)
 
@@ -201,6 +201,7 @@ def __main__():
     interface.start_threads()
     root.mainloop()
     interface.stop_threads()
+    interface.export_settings()
 
 
 if __name__ == '__main__':
