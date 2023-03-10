@@ -1,6 +1,6 @@
-from main import __main__
+from src.SerialPlotter.main import __main__
 
-'''Only run this through PyCharm'''
+'''This can be run from the command line'''
 
 if __name__ == '__main__':
     __main__()

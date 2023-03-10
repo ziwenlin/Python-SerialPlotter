@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 
-from filehandler import json_load, json_save
-from interfacegraph import GraphBase
-from program import SerialHandler, SerialThread
+from .filehandler import json_load, json_save
+from .interfacegraph import GraphBase
+from .program import SerialHandler, SerialThread
 from typing import Dict, List
 
 UPDATE_INTERVAL = 500
@@ -25,10 +25,16 @@ class InterfaceVariables:
     def import_settings(self):
         settings = self.settings
         for key, value in settings.get('tk_vars').items():
+            if key not in self.tk_vars:
+                continue
             self.tk_vars[key].set(value)
         for key, data in settings.get('tk_data').items():
+            # if key not in self.tk_data:
+            #     continue
             self.tk_data[key] = data
         for key, data in settings.get('graph_data').items():
+            # if key not in self.graph_data:
+            #     continue
             self.graph_data[key] = data
 
     def export_settings(self):

@@ -2,7 +2,7 @@ import threading
 import unittest
 
 from time import sleep
-from program import SerialThread, SerialHandler
+from SerialPlotter.program import SerialThread, SerialHandler
 
 
 class TestThreadingProgram(unittest.TestCase):
