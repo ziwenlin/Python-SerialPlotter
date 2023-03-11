@@ -29,7 +29,7 @@ class ApplicationView(tk.Frame):
 
     def create_notebook_tab(self, name: str):
         frame = tk.Frame(self.notebook)
-        frame.configure(pady=10, padx=10)
+        frame.configure(pady=5, padx=5)
         frame.pack(fill='both', expand=True, side='left')
         self.notebook.add(frame, text=name)
         self.notebook_tabs[name] = frame
@@ -205,7 +205,7 @@ class DevicePanelController:
     def __init__(self, master, interface):
         self.interface = interface
         self.view = DevicePanelView(master)
-        self.view.pack(fill='both', side='left', expand=True)
+        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
         self.view.bind_button('Connect', self.connect_command)
         self.view.bind_button('Disconnect', self.disconnect_command)
         self.view.bind_button('Reconnect', self.reconnect_command)
@@ -223,7 +223,7 @@ class DevicePanelController:
 
         # Translate success into a status message
         if success is True:
-            status = 'Succesfully connected'
+            status = 'Successfully connected'
         elif success is False:
             status = 'Already connected'
         else:

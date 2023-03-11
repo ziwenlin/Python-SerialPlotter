@@ -128,6 +128,7 @@ def make_base_frame(root):
     frame = tk.Frame(root, width=200)
     frame.pack(
         # expand=False,
+        pady=5, padx=5,
         expand=True,
         fill=tk.BOTH,
         side=tk.LEFT
