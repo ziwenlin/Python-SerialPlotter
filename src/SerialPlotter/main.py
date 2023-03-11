@@ -392,6 +392,7 @@ class RecorderPanelView(tk.Frame, MVCView):
         MVCView.__init__(self)
 
         self.check_buttons: Dict[str, tk.Checkbutton] = {}
+        self.check_buttons_var: Dict[str, tk.IntVar] = {}
 
         # Header label file name
         label_header_file_name = tk.Label(self, text='File name:')
@@ -439,18 +440,12 @@ class RecorderPanelView(tk.Frame, MVCView):
 
         option_names = ['Auto save', 'File append', 'File overwrite']
         for name in option_names:
-            check_button = tk.Checkbutton(self, text=name)
-            self.check_buttons[name] = check_button
+            self.check_buttons_var[name] = var = tk.IntVar()
+            self.check_buttons[name] = tk.Checkbutton(self, text=name, variable=var)
 
         self.check_buttons['Auto save'].pack(anchor='w')
         self.check_buttons['File append'].pack(anchor='w')
         self.check_buttons['File overwrite'].pack(anchor='w')
-
-        # IDK what these would do, but it should not be in view
-        # trigger = {'start': False, 'name': entry.get()}
-        # interface.graph_data['record csv'] = []
-        # interface.graph_data['auto csv'] = Queue()
-        # make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
 
 
 class RecorderPanelController:
@@ -458,6 +453,55 @@ class RecorderPanelController:
         self.interface = interface
         self.view = RecorderPanelView(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
+
+        self.view.bind_button('Save', self.save_command)
+        self.view.bind_button('Start', self.start_command)
+        self.view.bind_button('Pause', self.pause_command)
+
+        # IDK what these would do, but it should not be in view
+        # trigger = {'start': False, 'name': self.view.entry.get()}
+        # interface.tk_vars['Auto save'] = tk.IntVar()
+        # interface.graph_data['record csv'] = []
+        # interface.graph_data['auto csv'] = Queue()
+        # make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager 2')
+        # self.trigger = trigger
+
+    def save_command(self):
+        record_data = self.interface.graph_data['record csv']
+        auto_save_var = self.view.check_buttons_var['Auto save']
+        file_append_var = self.view.check_buttons_var['File append']
+        file_overwrite_var = self.view.check_buttons_var['File overwrite']
+        name = self.view.entry.get()
+        # name = trigger['name']
+        if auto_save_var.get() == 1:
+            return
+        elif file_append_var.get() == 1:
+            success = csv_save_append(name, record_data)
+        elif file_overwrite_var.get() == 1:
+            success = csv_save_create(name, record_data)
+        else:
+            success = csv_save_create(name, record_data)
+        if auto_save_var.get() == 0:
+            record_data.clear()
+        if success is True:
+            success = f'Saved data to {name}.csv'
+        elif success is False:
+            success = f'Could not save data to {name}.csv'
+        else:  # Fatal error
+            success = f'Something went wrong with {name}.csv'
+        self.view.update_label('Status', success)
+
+    def start_command(self):
+        # self.trigger['start'] = True
+        # self.trigger['name'] = self.view.entry.get()
+        self.view.update_label('Status', 'Started recording')
+        self.interface.tk_vars.get('saving').set('Started recording')
+
+    def pause_command(self):
+        # self.trigger['start'] = False
+        self.view.update_label('Status', 'Paused recording')
+        self.interface.tk_vars.get('saving').set('Paused recording')
+
 
 
 def panel_save_control(base, interface: InterfaceVariables):
