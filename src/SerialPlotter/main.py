@@ -61,6 +61,34 @@ class ApplicationController:
         pass
 
 
+class MVCView:
+    def __init__(self):
+        self.labels: Dict[str, tk.Label] = {}
+        self.buttons: Dict[str, tk.Button] = {}
+        self.entries: Dict[str, tk.Entry] = {}
+
+    def update_label(self, name: str, text: str):
+        """
+        Updates the text inside the desired label.
+
+        :param name: Name of the label
+        :param text: Desired text
+        """
+        label = self.labels.get(name)
+        size = text.count('\n') + 1
+        label.config(height=size, text=text)
+
+    def bind_button(self, name: str, command: ()):
+        """
+        Binds the command to the desired button.
+
+        :param name: Name of the button
+        :param command: Desired function
+        """
+        button = self.buttons.get(name)
+        button.configure(command=command)
+
+
 def panel_graph_control(base, interface: InterfaceVariables):
     frame = make_base_frame(base)
     make_spacer(frame, 2)
@@ -99,12 +127,10 @@ def panel_graph_view(base, interface: InterfaceVariables):
     make_thread(build_thread_interface(graph, interface), interface, 'Interface manager')
 
 
-class DevicePanelView(tk.Frame):
+class DevicePanelView(tk.Frame, MVCView):
     def __init__(self, master):
         super().__init__(master)
-        self.labels: Dict[str, tk.Label] = {}
-        self.buttons: Dict[str, tk.Button] = {}
-        self.entries: Dict[str, tk.Entry] = {}
+        MVCView.__init__(self)
         self.cboxes: Dict[str, ttk.Combobox] = {}
 
         # Header label available devices
@@ -167,27 +193,6 @@ class DevicePanelView(tk.Frame):
         # Placing send button after the entry
         self.buttons['Send'].pack(fill='both')
         self.entry = entry_send_command
-
-    def update_label(self, name: str, text: str):
-        """
-        Updates the text inside the desired label.
-
-        :param name: Name of the label
-        :param text: Desired text
-        """
-        label = self.labels.get(name)
-        size = text.count('\n') + 1
-        label.config(height=size, text=text)
-
-    def bind_button(self, name: str, command: ()):
-        """
-        Binds the command to the desired button.
-
-        :param name: Name of the button
-        :param command: Desired function
-        """
-        button = self.buttons.get(name)
-        button.configure(command=command)
 
 
 class DevicePanelModel:
