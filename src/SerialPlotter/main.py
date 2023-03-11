@@ -49,6 +49,7 @@ class ApplicationController:
 
         # Create sub controllers and link it to the notebook tabs
         self.device_controller = DevicePanelController(tab_connection, interface)
+        self.recorder_controller = RecorderPanelController(tab_recorder, interface)
 
         # Fill the tabs with the content
         panel_port_selector(tab_connection, interface)
@@ -383,6 +384,80 @@ def panel_port_selector(base, interface: InterfaceVariables):
     entry = make_labeled_entry(frame, 'Send serial:')
     make_button(frame, send_command, 'Send')
     make_spacer(frame, 20)  # Give some space for those dangerous buttons
+
+
+class RecorderPanelView(tk.Frame, MVCView):
+    def __init__(self, master):
+        super().__init__(master)
+        MVCView.__init__(self)
+
+        self.check_buttons: Dict[str, tk.Checkbutton] = {}
+
+        # Header label file name
+        label_header_file_name = tk.Label(self, text='File name:')
+        label_header_file_name.configure(anchor='nw', padx=5, height=1)
+        label_header_file_name.pack(fill='both', pady=(10, 2))
+
+        # Entry for file name
+        entry_file_name = tk.Entry(self)
+        entry_file_name.pack(fill='both', pady=(0, 12))
+        self.entry = entry_file_name
+
+        # Header label recorder controls
+        label_header_recording = tk.Label(self, text='Recorder controls:')
+        label_header_recording.configure(anchor='sw', padx=5, height=1)
+        label_header_recording.pack(fill='both', pady=(20, 2))
+
+        # Buttons with the display labels
+        button_names = ['Start', 'Pause', 'Save']
+        for name in button_names:
+            button = tk.Button(self, text=name)
+            button.configure(height=2, anchor='w', padx=8)
+            self.buttons[name] = button
+
+        # Placing recorder controller panel buttons in desired order
+        self.buttons['Start'].pack(fill='both')
+        self.buttons['Pause'].pack(fill='both')
+        self.buttons['Save'].pack(fill='both')
+
+        # Header label recorder status
+        label_header_recorder_status = tk.Label(self, text='Recorder status:')
+        label_header_recorder_status.configure(anchor='nw', padx=5, height=1)
+        label_header_recorder_status.pack(fill='both', pady=(20, 0))
+
+        # Label which will list the recorder status
+        # Controller logic will update this text
+        label_info_device_status = tk.Label(self, text='Standby')
+        label_info_device_status.configure(anchor='nw', padx=10, height=1)
+        label_info_device_status.pack(fill='both')
+        self.labels['Status'] = label_info_device_status
+
+        # Header label recorder settings
+        label_header_recorder_settings = tk.Label(self, text='Recorder settings:')
+        label_header_recorder_settings.configure(anchor='nw', padx=5, height=1)
+        label_header_recorder_settings.pack(fill='both', pady=(20, 0))
+
+        option_names = ['Auto save', 'File append', 'File overwrite']
+        for name in option_names:
+            check_button = tk.Checkbutton(self, text=name)
+            self.check_buttons[name] = check_button
+
+        self.check_buttons['Auto save'].pack(anchor='w')
+        self.check_buttons['File append'].pack(anchor='w')
+        self.check_buttons['File overwrite'].pack(anchor='w')
+
+        # IDK what these would do, but it should not be in view
+        # trigger = {'start': False, 'name': entry.get()}
+        # interface.graph_data['record csv'] = []
+        # interface.graph_data['auto csv'] = Queue()
+        # make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
+
+
+class RecorderPanelController:
+    def __init__(self, master, interface):
+        self.interface = interface
+        self.view = RecorderPanelView(master)
+        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
 
 
 def panel_save_control(base, interface: InterfaceVariables):
