@@ -138,6 +138,12 @@ class MVCView(tk.Frame):
         check_button.pack(anchor='w')
         return check_button
 
+    def create_entry(self, name: str):
+        self.entries[name] = entry = tk.Entry(self)
+        entry.pack(fill='both', pady=(5, 20), padx=5)
+        return entry
+
+
 
 def panel_graph_control(base, interface: InterfaceVariables):
     frame = make_base_frame(base)
