@@ -60,8 +60,9 @@ class ApplicationController:
         pass
 
 
-class MVCView:
-    def __init__(self):
+class MVCView(tk.Frame):
+    def __init__(self, *args, **kargs):
+        super().__init__(*args, **kargs)
         self.labels: Dict[str, tk.Label] = {}
         self.buttons: Dict[str, tk.Button] = {}
         self.entries: Dict[str, tk.Entry] = {}
@@ -126,10 +127,9 @@ def panel_graph_view(base, interface: InterfaceVariables):
     make_thread(build_thread_interface(graph, interface), interface, 'Interface manager')
 
 
-class DevicePanelView(tk.Frame, MVCView):
+class DevicePanelView(MVCView):
     def __init__(self, master):
         super().__init__(master)
-        MVCView.__init__(self)
         self.cboxes: Dict[str, ttk.Combobox] = {}
 
         # Header label available devices
@@ -308,10 +308,9 @@ class DevicePanelController:
         self.interface.arduino.queue_out.put(data)
 
 
-class RecorderPanelView(tk.Frame, MVCView):
+class RecorderPanelView(MVCView):
     def __init__(self, master):
         super().__init__(master)
-        MVCView.__init__(self)
 
         self.check_buttons: Dict[str, tk.Checkbutton] = {}
         self.check_buttons_var: Dict[str, tk.IntVar] = {}
