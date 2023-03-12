@@ -72,7 +72,7 @@ class MVCView(tk.Frame):
         Updates the text inside the desired label.
 
         :param name: Name of the label
-        :param text: Desired text
+        :param text: Desired text which will be displayed
         """
         label = self.labels.get(name)
         size = text.count('\n') + 1
@@ -99,6 +99,17 @@ class MVCView(tk.Frame):
         label.configure(anchor='nw', padx=10, height=1, justify='left')
         label.pack(fill='both')
         self.labels[name] = label
+        return label
+
+    def create_label_header(self, text):
+        """
+        Creates a label with the desired text.
+
+        :param text: Desired text which will be displayed
+        """
+        label = tk.Label(self, text=text)
+        label.configure(anchor='nw', padx=5, height=1)
+        label.pack(fill='both', pady=(10, 0))
         return label
 
 
