@@ -52,7 +52,6 @@ class ApplicationController:
         self.recorder_controller = RecorderPanelController(tab_recorder, interface)
 
         # Fill the tabs with the content
-        panel_save_control(tab_recorder, interface)
         panel_graph_control(tab_graph_settings, interface)
         panel_graph_filter(tab_graph_display, interface)
         panel_graph_view(tab_graph_display, interface)
@@ -382,12 +381,11 @@ class RecorderPanelController:
         self.view.bind_button('Pause', self.pause_command)
 
         # IDK what these would do, but it should not be in view
-        # trigger = {'start': False, 'name': self.view.entry.get()}
-        # interface.tk_vars['Auto save'] = tk.IntVar()
-        # interface.graph_data['record csv'] = []
-        # interface.graph_data['auto csv'] = Queue()
-        # make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager 2')
-        # self.trigger = trigger
+        self.trigger = trigger = {'start': False, 'name': self.view.entry.get()}
+        interface.tk_vars['Auto save'] = self.view.check_buttons_var['Auto save']
+        interface.graph_data['record csv'] = []
+        interface.graph_data['auto csv'] = Queue()
+        make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
 
     def save_command(self):
         record_data = self.interface.graph_data['record csv']
@@ -415,71 +413,13 @@ class RecorderPanelController:
         self.view.update_label('Status', success)
 
     def start_command(self):
-        # self.trigger['start'] = True
-        # self.trigger['name'] = self.view.entry.get()
+        self.trigger['start'] = True
+        self.trigger['name'] = self.view.entry.get()
         self.view.update_label('Status', 'Started recording')
-        self.interface.tk_vars.get('saving').set('Started recording')
 
     def pause_command(self):
-        # self.trigger['start'] = False
+        self.trigger['start'] = False
         self.view.update_label('Status', 'Paused recording')
-        self.interface.tk_vars.get('saving').set('Paused recording')
-
-
-
-def panel_save_control(base, interface: InterfaceVariables):
-    def save_command():
-        record_data = interface.graph_data['record csv']
-        auto_save_var = interface.tk_vars['Auto save']
-        file_append_var = interface.tk_vars['File append']
-        file_overwrite_var = interface.tk_vars['File overwrite']
-        name = entry.get()
-        # name = trigger['name']
-        if auto_save_var.get() == 1:
-            return
-        elif file_append_var.get() == 1:
-            success = csv_save_append(name, record_data)
-        elif file_overwrite_var.get() == 1:
-            success = csv_save_create(name, record_data)
-        else:
-            success = csv_save_create(name, record_data)
-        if auto_save_var.get() == 0:
-            record_data.clear()
-        if success is True:
-            success = f'Saved data to {name}.csv'
-        elif success is False:
-            success = f'Could not save data to {name}.csv'
-        else:  # Fatal error
-            success = f'Something went wrong with {name}.csv'
-        interface.tk_vars.get('saving').set(success)
-
-    def start_command():
-        trigger['start'] = True
-        trigger['name'] = entry.get()
-        interface.tk_vars.get('saving').set('Started recording')
-
-    def pause_command():
-        trigger['start'] = False
-        interface.tk_vars.get('saving').set('Paused recording')
-
-    frame = make_base_frame(base)
-    make_spacer(frame, 2)
-    entry = make_labeled_entry(frame, 'File name:')
-    make_spaced_label(frame, 'Recording:')
-    make_button(frame, start_command, 'Start')
-    make_button(frame, pause_command, 'Pause')
-    make_button(frame, save_command, 'Save')
-    make_updatable_label(frame, interface.tk_vars, 'saving')
-    make_spacer(frame, 20)  # Give some space for those dangerous buttons
-    make_check_button(frame, interface.tk_vars, 'Auto save')
-    make_check_button(frame, interface.tk_vars, 'File append')
-    make_check_button(frame, interface.tk_vars, 'File overwrite')
-    make_spacer(frame, 20)  # Give some space for those dangerous buttons
-
-    trigger = {'start': False, 'name': entry.get()}
-    interface.graph_data['record csv'] = []
-    interface.graph_data['auto csv'] = Queue()
-    make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
 
 
 def __main__():
