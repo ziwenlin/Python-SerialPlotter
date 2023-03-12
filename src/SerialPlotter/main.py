@@ -88,6 +88,19 @@ class MVCView(tk.Frame):
         button = self.buttons.get(name)
         button.configure(command=command)
 
+    def create_button(self, name: str, text: str):
+        """
+        Creates a button with the desired text.
+
+        :param name: Name of the button
+        :param text: Text which will be displayed on the button
+        """
+        button = tk.Button(self, text=text)
+        button.configure(height=2, anchor='w', padx=8)
+        button.pack(fill='both')
+        self.buttons[name] = button
+        return button
+
     def create_label(self, name, text):
         """
         Creates a label with the desired text.
