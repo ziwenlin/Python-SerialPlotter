@@ -222,8 +222,7 @@ class DevicePanelView(MVCView):
         self.create_label_header('Send command to device:')
 
         # Entry for send command
-        self.entry = entry_send_command = tk.Entry(self)
-        entry_send_command.pack(fill='both', pady=(5, 20), padx=5)
+        self.create_entry('Send')
 
         # Button which sends the command
         self.create_button('Send', 'Send command')
@@ -338,8 +337,9 @@ class DevicePanelController:
         self.view.combobox['values'] = device_names
 
     def send_command(self):
-        data = self.view.entry.get()
-        self.view.entry.delete(0, tk.END)
+        entry = self.view.entries['Send']
+        data = entry.get()
+        entry.delete(0, tk.END)
         self.interface.arduino.queue_out.put(data)
 
 
@@ -351,9 +351,7 @@ class RecorderPanelView(MVCView):
         self.create_label_header('Save file name:')
 
         # Entry for file name
-        entry_file_name = tk.Entry(self)
-        entry_file_name.pack(fill='both', pady=(5, 12))
-        self.entry = entry_file_name
+        self.create_entry('File name')
 
         # Button saving recorder data
         self.create_button('Save', 'Save recorder data')
@@ -392,7 +390,7 @@ class RecorderPanelController:
         self.view.bind_button('Pause', self.pause_command)
 
         # IDK what these would do, but it should not be in view
-        self.trigger = trigger = {'start': False, 'name': self.view.entry.get()}
+        self.trigger = trigger = {'start': False, 'name': self.view.entries['File name'].get()}
         interface.tk_vars['Auto save'] = self.view.check_buttons['Auto save']
         interface.graph_data['record csv'] = []
         interface.graph_data['auto csv'] = Queue()
@@ -403,7 +401,7 @@ class RecorderPanelController:
         auto_save_var = self.view.check_buttons['Auto save']
         file_append_var = self.view.check_buttons['File append']
         file_overwrite_var = self.view.check_buttons['File overwrite']
-        name = self.view.entry.get()
+        name = self.view.entries['File name'].get()
         # name = trigger['name']
         if auto_save_var.get() == 1:
             return
@@ -425,7 +423,7 @@ class RecorderPanelController:
 
     def start_command(self):
         self.trigger['start'] = True
-        self.trigger['name'] = self.view.entry.get()
+        self.trigger['name'] = self.view.entries['File name'].get()
         self.view.update_label('Status', 'Started recording')
 
     def pause_command(self):
