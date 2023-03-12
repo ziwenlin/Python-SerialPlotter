@@ -52,7 +52,6 @@ class ApplicationController:
         self.recorder_controller = RecorderPanelController(tab_recorder, interface)
 
         # Fill the tabs with the content
-        panel_port_selector(tab_connection, interface)
         panel_save_control(tab_recorder, interface)
         panel_graph_control(tab_graph_settings, interface)
         panel_graph_filter(tab_graph_display, interface)
@@ -308,82 +307,6 @@ class DevicePanelController:
         data = self.view.entry.get()
         self.view.entry.delete(0, tk.END)
         self.interface.arduino.queue_out.put(data)
-
-
-def panel_port_selector(base, interface: InterfaceVariables):
-    def connect_command():
-        arduino = interface.arduino
-        port = combobox.get()
-        success = arduino.connect(port)
-        if success is True:
-            success = 'Connected'
-        elif success is False:
-            success = 'Already connected'
-        else:
-            success = 'Not connected'
-        interface.tk_vars.get('success').set(success)
-
-    def disconnect_command():
-        arduino = interface.arduino
-        port = arduino.serial.name
-        success = arduino.disconnect()
-        if success is True:
-            success = 'Disconnected'
-        elif success is False:
-            success = 'Not connected'
-        else:  # This line should/will never happen
-            success = 'Fatal error'
-        interface.tk_vars.get('success').set(success)
-
-    def reconnect_command():
-        arduino = interface.arduino
-        port = arduino.serial.name
-        success1 = arduino.disconnect()
-        success2 = arduino.connect(port)
-        if success1 and success2 is True:
-            success = 'Reconnected'
-        elif success1 and success2 is False:
-            success = 'Connected'
-        else:
-            success = 'Not connected'
-        interface.tk_vars.get('success').set(success)
-
-    def refresh_command():
-        text = ''
-        ports = []
-        for port in comports():
-            name = str(port.device)
-            ports += [name]
-            text += name + '\n'
-        if len(ports) == 0:
-            text += 'None available\n'
-            ports += ['None']
-        interface.tk_data['port'] = ports
-        interface.tk_vars.get('ports').set(text)
-
-    def send_command():
-        data = entry.get()
-        entry.delete(0, tk.END)
-        interface.arduino.queue_out.put(data)
-
-    frame = make_base_frame(base)
-    make_spacer(frame, 2)
-    make_spaced_label(frame, 'Selectable ports:')
-    make_updatable_label(frame, interface.tk_vars, 'ports')
-    interface.tk_vars.get('ports').set('Please refresh list\n')
-
-    make_spacer(frame, 20)  # Give some space for those dangerous buttons
-    make_updatable_label(frame, interface.tk_vars, 'success')
-    combobox = make_combobox(frame, interface.tk_data, 'port')
-    make_button(frame, refresh_command, 'Refresh')
-    make_button(frame, connect_command, 'Connect')
-    make_button(frame, disconnect_command, 'Disconnect')
-    make_button(frame, reconnect_command, 'Reconnect')
-
-    make_spacer(frame, 20)  # Give some space for those dangerous buttons
-    entry = make_labeled_entry(frame, 'Send serial:')
-    make_button(frame, send_command, 'Send')
-    make_spacer(frame, 20)  # Give some space for those dangerous buttons
 
 
 class RecorderPanelView(tk.Frame, MVCView):
