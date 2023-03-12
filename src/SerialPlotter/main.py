@@ -63,6 +63,7 @@ class ApplicationController:
 class MVCView(tk.Frame):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
+        self.check_buttons: Dict[str, tk.IntVar] = {}
         self.labels: Dict[str, tk.Label] = {}
         self.buttons: Dict[str, tk.Button] = {}
         self.entries: Dict[str, tk.Entry] = {}
@@ -124,6 +125,18 @@ class MVCView(tk.Frame):
         label.configure(anchor='nw', padx=5, height=1)
         label.pack(fill='both', pady=(15, 0))
         return label
+
+    def create_check_button(self, name: str, text: str):
+        """
+        Creates a checkbutton with the desired text
+
+        :param name: Name of the check button
+        :param text: Text which will be displayed on the button
+        """
+        self.check_buttons[name] = variable = tk.IntVar()
+        check_button = tk.Checkbutton(self, text=text, variable=variable)
+        check_button.pack(anchor='w')
+        return check_button
 
 
 def panel_graph_control(base, interface: InterfaceVariables):
