@@ -6,9 +6,9 @@ from typing import Dict, List
 from serial.tools.list_ports import comports
 
 from .filehandler import csv_save_append, csv_save_create
-from .interfacebuilder import make_base_frame, make_spaced_label, make_button, make_spacer, \
-    make_updatable_label, InterfaceVariables, make_combobox, make_graph, make_thread, make_check_button, \
-    make_named_spinbox, make_labeled_entry
+from .interfacebuilder import make_base_frame, make_spaced_label, make_spacer, \
+    InterfaceVariables, make_graph, make_thread, make_check_button, \
+    make_named_spinbox
 from .threadbuilder import build_thread_interface, build_thread_graph, build_thread_csv
 
 
@@ -206,18 +206,11 @@ class DevicePanelView(MVCView):
         combobox.set('None')
         self.combobox = combobox
 
-        # Buttons with the display labels
-        button_names = ['Refresh', 'Connect', 'Disconnect', 'Reconnect', 'Send']
-        for name in button_names:
-            button = tk.Button(self, text=name)
-            button.configure(anchor='w', padx=8, pady=8)
-            self.buttons[name] = button
-
-        # Placing devices controller panel buttons in desired order
-        self.buttons['Refresh'].pack(fill='both')
-        self.buttons['Connect'].pack(fill='both')
-        self.buttons['Disconnect'].pack(fill='both')
-        self.buttons['Reconnect'].pack(fill='both')
+        # Buttons which are controlling the connection
+        self.create_button('Refresh', 'Refresh')
+        self.create_button('Connect', 'Connect')
+        self.create_button('Disconnect', 'Disconnect')
+        self.create_button('Reconnect', 'Reconnect')
 
         # Header label send command
         self.create_label_header('Send command to device:')
@@ -225,8 +218,9 @@ class DevicePanelView(MVCView):
         # Entry for send command
         self.entry = entry_send_command = tk.Entry(self)
         entry_send_command.pack(fill='both', pady=(5, 20), padx=5)
-        # Placing send button after the entry
-        self.buttons['Send'].pack(fill='both')
+
+        # Button which sends the command
+        self.create_button('Send', 'Send command')
 
 
 class DevicePanelModel:
