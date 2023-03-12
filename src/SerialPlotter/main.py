@@ -347,61 +347,38 @@ class RecorderPanelView(MVCView):
     def __init__(self, master):
         super().__init__(master)
 
-        self.check_buttons: Dict[str, tk.Checkbutton] = {}
-        self.check_buttons_var: Dict[str, tk.IntVar] = {}
-
         # Header label file name
-        label_header_file_name = tk.Label(self, text='File name:')
-        label_header_file_name.configure(anchor='nw', padx=5, height=1)
-        label_header_file_name.pack(fill='both', pady=(10, 2))
+        self.create_label_header('Save file name:')
 
         # Entry for file name
         entry_file_name = tk.Entry(self)
-        entry_file_name.pack(fill='both', pady=(0, 12))
+        entry_file_name.pack(fill='both', pady=(5, 12))
         self.entry = entry_file_name
 
+        # Button saving recorder data
+        self.create_button('Save', 'Save recorder data')
+
         # Header label recorder controls
-        label_header_recording = tk.Label(self, text='Recorder controls:')
-        label_header_recording.configure(anchor='sw', padx=5, height=1)
-        label_header_recording.pack(fill='both', pady=(20, 2))
+        self.create_label_header('Recorder controls:')
 
         # Buttons with the display labels
-        button_names = ['Start', 'Pause', 'Save']
-        for name in button_names:
-            button = tk.Button(self, text=name)
-            button.configure(height=2, anchor='w', padx=8)
-            self.buttons[name] = button
-
-        # Placing recorder controller panel buttons in desired order
-        self.buttons['Start'].pack(fill='both')
-        self.buttons['Pause'].pack(fill='both')
-        self.buttons['Save'].pack(fill='both')
+        self.create_button('Start', 'Start recording')
+        self.create_button('Pause', 'Pause recording')
 
         # Header label recorder status
-        label_header_recorder_status = tk.Label(self, text='Recorder status:')
-        label_header_recorder_status.configure(anchor='nw', padx=5, height=1)
-        label_header_recorder_status.pack(fill='both', pady=(20, 0))
+        self.create_label_header('Recorder status:')
 
         # Label which will list the recorder status
         # Controller logic will update this text
-        label_info_device_status = tk.Label(self, text='Standby')
-        label_info_device_status.configure(anchor='nw', padx=10, height=1)
-        label_info_device_status.pack(fill='both')
-        self.labels['Status'] = label_info_device_status
+        self.create_label('Status', 'Standby')
 
         # Header label recorder settings
-        label_header_recorder_settings = tk.Label(self, text='Recorder settings:')
-        label_header_recorder_settings.configure(anchor='nw', padx=5, height=1)
-        label_header_recorder_settings.pack(fill='both', pady=(20, 0))
+        self.create_label_header('Recorder settings:')
 
-        option_names = ['Auto save', 'File append', 'File overwrite']
-        for name in option_names:
-            self.check_buttons_var[name] = var = tk.IntVar()
-            self.check_buttons[name] = tk.Checkbutton(self, text=name, variable=var)
-
-        self.check_buttons['Auto save'].pack(anchor='w')
-        self.check_buttons['File append'].pack(anchor='w')
-        self.check_buttons['File overwrite'].pack(anchor='w')
+        # Check buttons options
+        self.create_check_button('Auto save', 'Automatically save recorder data')
+        self.create_check_button('File append', 'Append recorder save file data')
+        self.create_check_button('File overwrite', 'Overwrite recorder save file data')
 
 
 class RecorderPanelController:
@@ -416,16 +393,16 @@ class RecorderPanelController:
 
         # IDK what these would do, but it should not be in view
         self.trigger = trigger = {'start': False, 'name': self.view.entry.get()}
-        interface.tk_vars['Auto save'] = self.view.check_buttons_var['Auto save']
+        interface.tk_vars['Auto save'] = self.view.check_buttons['Auto save']
         interface.graph_data['record csv'] = []
         interface.graph_data['auto csv'] = Queue()
         make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
 
     def save_command(self):
         record_data = self.interface.graph_data['record csv']
-        auto_save_var = self.view.check_buttons_var['Auto save']
-        file_append_var = self.view.check_buttons_var['File append']
-        file_overwrite_var = self.view.check_buttons_var['File overwrite']
+        auto_save_var = self.view.check_buttons['Auto save']
+        file_append_var = self.view.check_buttons['File append']
+        file_overwrite_var = self.view.check_buttons['File overwrite']
         name = self.view.entry.get()
         # name = trigger['name']
         if auto_save_var.get() == 1:
