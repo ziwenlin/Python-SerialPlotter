@@ -88,6 +88,19 @@ class MVCView(tk.Frame):
         button = self.buttons.get(name)
         button.configure(command=command)
 
+    def create_label(self, name, text):
+        """
+        Creates a label with the desired text.
+
+        :param name: Name of the label
+        :param text: Desired text which will be displayed
+        """
+        label = tk.Label(self, text=text)
+        label.configure(anchor='nw', padx=10, height=1, justify='left')
+        label.pack(fill='both')
+        self.labels[name] = label
+        return label
+
 
 def panel_graph_control(base, interface: InterfaceVariables):
     frame = make_base_frame(base)
