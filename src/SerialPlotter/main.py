@@ -97,7 +97,7 @@ class MVCView(tk.Frame):
         """
         label = tk.Label(self, text=text)
         label.configure(anchor='nw', padx=10, height=1, justify='left')
-        label.pack(fill='both')
+        label.pack(fill='both', pady=2)
         self.labels[name] = label
         return label
 
@@ -109,7 +109,7 @@ class MVCView(tk.Frame):
         """
         label = tk.Label(self, text=text)
         label.configure(anchor='nw', padx=5, height=1)
-        label.pack(fill='both', pady=(10, 0))
+        label.pack(fill='both', pady=(15, 0))
         return label
 
 
@@ -157,38 +157,26 @@ class DevicePanelView(MVCView):
         self.cboxes: Dict[str, ttk.Combobox] = {}
 
         # Header label available devices
-        label_header_devices = tk.Label(self, text='Available devices:')
-        label_header_devices.configure(anchor='nw', padx=5, height=1)
-        label_header_devices.pack(fill='both', pady=(10, 2))
+        self.create_label_header('Available devices:')
 
         # Label which will list selectable devices
         # Controller logic will update this text
-        label_list_devices = tk.Label(self, text='Please press refresh')
-        label_list_devices.configure(anchor='nw', padx=10, height=4, justify='left')
-        label_list_devices.pack(fill='both')
-        self.labels['Ports'] = label_list_devices
+        self.create_label('Ports', 'Please press refresh').configure(height=4)
 
         # Header label device status
-        label_header_device_status = tk.Label(self, text='Device status:')
-        label_header_device_status.configure(anchor='nw', padx=5, height=1)
-        label_header_device_status.pack(fill='both', pady=(20, 0))
+        self.create_label_header('Device status:')
 
         # Label which will list the device status
         # Controller logic will update this text
-        label_info_device_status = tk.Label(self, text='Please select a device')
-        label_info_device_status.configure(anchor='nw', padx=10, height=1)
-        label_info_device_status.pack(fill='both')
-        self.labels['Success'] = label_info_device_status
+        self.create_label('Success', 'Please select a device')
 
         # Header label select device
-        label_header_combobox = tk.Label(self, text=f'Select device:')
-        label_header_combobox.configure(anchor='nw', padx=5, height=1)
-        label_header_combobox.pack(fill='both', pady=(20, 5))
+        self.create_label_header('Select device:')
 
         # Combobox which list available devices to connect
         # Controller logic will update the list of devices
         combobox = ttk.Combobox(self)
-        combobox.pack(fill='both', pady=(0, 12))
+        combobox.pack(fill='both', padx=5, pady=(5, 20))
         combobox.set('None')
         self.combobox = combobox
 
@@ -196,7 +184,7 @@ class DevicePanelView(MVCView):
         button_names = ['Refresh', 'Connect', 'Disconnect', 'Reconnect', 'Send']
         for name in button_names:
             button = tk.Button(self, text=name)
-            button.configure(height=2, anchor='w', padx=8)
+            button.configure(anchor='w', padx=8, pady=8)
             self.buttons[name] = button
 
         # Placing devices controller panel buttons in desired order
@@ -206,16 +194,13 @@ class DevicePanelView(MVCView):
         self.buttons['Reconnect'].pack(fill='both')
 
         # Header label send command
-        label_header_send_command = tk.Label(self, text='Send command to device:')
-        label_header_send_command.configure(anchor='nw', padx=5, height=1)
-        label_header_send_command.pack(fill='both', pady=(20, 2))
+        self.create_label_header('Send command to device:')
 
         # Entry for send command
-        entry_send_command = tk.Entry(self)
-        entry_send_command.pack(fill='both', pady=(0, 12))
+        self.entry = entry_send_command = tk.Entry(self)
+        entry_send_command.pack(fill='both', pady=(5, 20), padx=5)
         # Placing send button after the entry
         self.buttons['Send'].pack(fill='both')
-        self.entry = entry_send_command
 
 
 class DevicePanelModel:
