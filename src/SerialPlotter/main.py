@@ -354,14 +354,14 @@ class RecorderPanelView(MVCView):
         self.create_entry('File name')
 
         # Button saving recorder data
-        self.create_button('Save', 'Save recorder data')
+        self.create_button('Save', 'Save recorded data')
 
         # Header label recorder controls
         self.create_label_header('Recorder controls:')
 
         # Buttons with the display labels
-        self.create_button('Start', 'Start recording')
-        self.create_button('Pause', 'Pause recording')
+        self.create_button('Start', 'Start')
+        self.create_button('Pause', 'Pause')
 
         # Header label recorder status
         self.create_label_header('Recorder status:')
@@ -374,9 +374,9 @@ class RecorderPanelView(MVCView):
         self.create_label_header('Recorder settings:')
 
         # Check buttons options
-        self.create_check_button('Auto save', 'Automatically save recorder data')
-        self.create_check_button('File append', 'Append recorder save file data')
-        self.create_check_button('File overwrite', 'Overwrite recorder save file data')
+        self.create_check_button('Auto save', 'Automatically save incoming data')
+        self.create_check_button('File append', 'Append recorder save file data when saving manually')
+        self.create_check_button('File overwrite', 'Overwrite recorder save file data when saving manually')
 
 
 class RecorderPanelController:
