@@ -200,6 +200,41 @@ class MVCView(tk.Frame):
         return frame, radio_buttons, variable
 
 
+class BoxedEntriesFrame(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.check_buttons_vars: List[tk.IntVar] = []
+        self.check_buttons: List[tk.Checkbutton] = []
+        self.entries: List[tk.Entry] = []
+        self.frames: List[tk.Frame] = []
+        self.create_entry()
+
+    def remove_entry(self):
+        if len(self.frames) <= 1:
+            return
+        frame = self.frames.pop()
+        for child in frame.winfo_children():
+            child.destroy()
+        frame.destroy()
+
+    def create_entry(self):
+        frame = tk.Frame(self)
+        frame.pack(fill='both', expand=True, side='top', anchor='n')
+
+        variable = tk.IntVar(frame)
+        check_button = tk.Checkbutton(frame, variable=variable)
+        check_button.pack(side='left')
+
+        entry = tk.Entry(frame)
+        entry.pack(side='left', fill='x')
+
+        self.frames.append(frame)
+        self.entries.append(entry)
+        self.check_buttons.append(check_button)
+        self.check_buttons_vars.append(variable)
+        return frame, check_button, entry, variable
+
+
 def panel_graph_control(base, interface: InterfaceVariables):
     frame = make_base_frame(base)
     make_spacer(frame, 2)
