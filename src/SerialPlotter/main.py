@@ -67,6 +67,7 @@ class MVCView(tk.Frame):
         self.text_field: Dict[str, tk.Text] = {}
         self.combo_boxes: Dict[str, ttk.Combobox] = {}
         self.check_buttons: Dict[str, tk.IntVar] = {}
+        self.radio_buttons: Dict[str, tk.IntVar] = {}
         self.labels: Dict[str, tk.Label] = {}
         self.buttons: Dict[str, tk.Button] = {}
         self.entries: Dict[str, tk.Entry] = {}
@@ -180,6 +181,20 @@ class MVCView(tk.Frame):
         scroll.configure(command=text.yview)
 
         return frame, text, scroll
+
+    def create_radio_buttons(self, name, values):
+        frame = tk.Frame(self)
+        frame.pack(fill='both', pady=(5, 20))
+
+        radio_buttons = []
+        self.radio_buttons[name] = variable = tk.IntVar(value=0)
+
+        for index, text in enumerate(values):
+            radio_button = tk.Radiobutton(frame, text=text, variable=variable, value=index)
+            radio_button.pack(anchor='w')
+            radio_buttons.append(radio_button)
+
+        return frame, radio_buttons, variable
 
 
 def panel_graph_control(base, interface: InterfaceVariables):
@@ -375,6 +390,12 @@ class ConnectionPanelView(MVCView):
         # Button which sends the command
         self.create_label_header('Send command to device:')
         self.create_entry_with_button('Out', 'Send')
+
+        # Header label connection settings
+        self.create_label_header('Connection data settings:')
+        self.create_radio_buttons('Show', [
+            'Disable displaying incoming data',
+            'Show all', 'Show messages', 'Show data'])
 
         # Header label incoming data
         self.create_label_header('Incoming data')
