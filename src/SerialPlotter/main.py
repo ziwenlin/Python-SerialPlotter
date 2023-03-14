@@ -49,6 +49,7 @@ class ApplicationController:
 
         # Create sub controllers and link it to the notebook tabs
         self.device_controller = DevicePanelController(tab_connection, interface)
+        self.connection_controller = ConnectionPanelController(tab_connection, interface)
         self.recorder_controller = RecorderPanelController(tab_recorder, interface)
 
         # Fill the tabs with the content
@@ -229,6 +230,7 @@ class DevicePanelView(MVCView):
         # Label which will list selectable devices
         # Controller logic will update this text
         self.create_label('Ports', 'Please press refresh').configure(height=4)
+        self.create_button('Refresh', 'Refresh')
 
         # Header label device status
         self.create_label_header('Device status:')
@@ -245,19 +247,9 @@ class DevicePanelView(MVCView):
         self.create_combobox('Device', 'None')
 
         # Buttons which are controlling the connection
-        self.create_button('Refresh', 'Refresh')
         self.create_button('Connect', 'Connect')
         self.create_button('Disconnect', 'Disconnect')
         self.create_button('Reconnect', 'Reconnect')
-
-        # Header label send command
-        self.create_label_header('Send command to device:')
-
-        # Entry for send command
-        self.create_entry('Send')
-
-        # Button which sends the command
-        self.create_button('Send', 'Send command')
 
 
 class DevicePanelModel:
@@ -274,7 +266,6 @@ class DevicePanelController:
         self.view.bind_button('Disconnect', self.disconnect_command)
         self.view.bind_button('Reconnect', self.reconnect_command)
         self.view.bind_button('Refresh', self.refresh_command)
-        self.view.bind_button('Send', self.send_command)
 
     def connect_command(self):
         # Read the selected device name from the combobox
@@ -373,6 +364,28 @@ class DevicePanelController:
         data = entry.get()
         entry.delete(0, tk.END)
         self.interface.arduino.queue_out.put(data)
+
+
+class ConnectionPanelView(MVCView):
+    def __init__(self, master):
+        super().__init__(master)
+
+        # Header label send command
+        # Entry for send command
+        # Button which sends the command
+        self.create_label_header('Send command to device:')
+        self.create_entry_with_button('Out', 'Send')
+
+        # Header label incoming data
+        self.create_label_header('Incoming data')
+        self.create_text_field('In')
+
+
+class ConnectionPanelController:
+    def __init__(self, master, interface):
+        self.interface = interface
+        self.view = ConnectionPanelView(master)
+        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
 
 
 class RecorderPanelView(MVCView):
