@@ -62,8 +62,8 @@ class ApplicationController:
 
 
 class MVCView(tk.Frame):
-    def __init__(self, *args, **kargs):
-        super().__init__(*args, **kargs)
+    def __init__(self, *args, **k_args):
+        super().__init__(*args, **k_args)
         self.text_field: Dict[str, tk.Text] = {}
         self.combo_boxes: Dict[str, ttk.Combobox] = {}
         self.check_buttons: Dict[str, tk.IntVar] = {}
@@ -140,38 +140,41 @@ class MVCView(tk.Frame):
         self.check_buttons[name] = variable = tk.IntVar()
         check_button = tk.Checkbutton(self, text=text, variable=variable)
         check_button.pack(anchor='w')
-        return check_button
+        return check_button, variable
 
     def create_entry(self, name: str):
         self.entries[name] = entry = tk.Entry(self)
-        entry.pack(fill='both', pady=(5, 20), padx=5)
+        entry.pack(fill='both', pady=(5, 10), padx=5)
         return entry
 
     def create_entry_with_button(self, name: str, text: str):
         frame = tk.Frame(self)
-        frame.pack(fill='both', pady=(5, 20), padx=5)
+        frame.pack(fill='both', pady=(5, 10), padx=5)
 
         self.entries[name] = entry = tk.Entry(frame)
         entry.pack(fill='both', side='left', expand=True)
 
         self.buttons[name] = button = tk.Button(frame, text=text)
         button.configure(anchor='w', padx=8)
-        button.pack(fill='both', side='right')
+        button.pack(fill='both', side='right', padx=(5, 0))
 
         return frame, entry, button
 
     def create_combobox(self, name, default_value, values=None):
         if values is None:
             values = []
+
         self.combo_boxes[name] = combobox = ttk.Combobox(self, values=values)
         combobox.pack(fill='both', padx=5, pady=(5, 20))
         combobox.set(default_value)
+        return combobox
 
     def create_text_field(self, name):
         frame = tk.Frame(self)
         frame.pack(fill='both', expand=True, pady=(5, 20), padx=5)
 
         self.text_field[name] = text = tk.Text(frame)
+        text.configure(padx=5, pady=5, height=3, width=5)
         text.pack(fill='both', expand=True, side='left')
 
         scroll = tk.Scrollbar(frame)
@@ -418,10 +421,7 @@ class RecorderPanelView(MVCView):
         self.create_label_header('Save file name:')
 
         # Entry for file name
-        self.create_entry('File name')
-
-        # Button saving recorder data
-        self.create_button('Save', 'Save recorded data')
+        self.create_entry_with_button('Save', 'Save')
 
         # Header label recorder controls
         self.create_label_header('Recorder controls:')
@@ -457,7 +457,7 @@ class RecorderPanelController:
         self.view.bind_button('Pause', self.pause_command)
 
         # IDK what these would do, but it should not be in view
-        self.trigger = trigger = {'start': False, 'name': self.view.entries['File name'].get()}
+        self.trigger = trigger = {'start': False, 'name': self.view.entries['Save'].get()}
         interface.tk_vars['Auto save'] = self.view.check_buttons['Auto save']
         interface.graph_data['record csv'] = []
         interface.graph_data['auto csv'] = Queue()
@@ -468,7 +468,7 @@ class RecorderPanelController:
         auto_save_var = self.view.check_buttons['Auto save']
         file_append_var = self.view.check_buttons['File append']
         file_overwrite_var = self.view.check_buttons['File overwrite']
-        name = self.view.entries['File name'].get()
+        name = self.view.entries['Save'].get()
         # name = trigger['name']
         if auto_save_var.get() == 1:
             return
@@ -490,7 +490,7 @@ class RecorderPanelController:
 
     def start_command(self):
         self.trigger['start'] = True
-        self.trigger['name'] = self.view.entries['File name'].get()
+        self.trigger['name'] = self.view.entries['Save'].get()
         self.view.update_label('Status', 'Started recording')
 
     def pause_command(self):
