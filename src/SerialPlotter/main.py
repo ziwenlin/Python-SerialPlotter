@@ -272,20 +272,6 @@ class GraphFilterPanelController:
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
 
 
-def panel_graph_filter(base, interface: InterfaceVariables):
-    interface.tk_data['graph'] = button_list = [
-        '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'
-    ]
-
-    frame = make_base_frame(base)
-    make_spacer(frame, 2)
-    make_spaced_label(frame, 'Graph filters:')
-    # graph_filter = tk.Frame(frame)
-    for name in button_list:
-        make_check_button(frame, interface.tk_vars, name)
-    interface.graph_data['state'] = {}
-
-
 def panel_graph_view(base, interface: InterfaceVariables):
     frame = make_base_frame(base)
     frame.config(width=2000)
