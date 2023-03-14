@@ -63,6 +63,7 @@ class ApplicationController:
 class MVCView(tk.Frame):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
+        self.text_field: Dict[str, tk.Text] = {}
         self.combo_boxes: Dict[str, ttk.Combobox] = {}
         self.check_buttons: Dict[str, tk.IntVar] = {}
         self.labels: Dict[str, tk.Label] = {}
@@ -163,6 +164,21 @@ class MVCView(tk.Frame):
         self.combo_boxes[name] = combobox = ttk.Combobox(self, values=values)
         combobox.pack(fill='both', padx=5, pady=(5, 20))
         combobox.set(default_value)
+
+    def create_text_field(self, name):
+        frame = tk.Frame(self)
+        frame.pack(fill='both', expand=True, pady=(5, 20), padx=5)
+
+        self.text_field[name] = text = tk.Text(frame)
+        text.pack(fill='both', expand=True, side='left')
+
+        scroll = tk.Scrollbar(frame)
+        scroll.pack(fill='both', side='right')
+
+        text.configure(yscrollcommand=scroll.set)
+        scroll.configure(command=text.yview)
+
+        return frame, text, scroll
 
 
 def panel_graph_control(base, interface: InterfaceVariables):
