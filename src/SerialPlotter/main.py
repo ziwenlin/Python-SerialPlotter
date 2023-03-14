@@ -187,14 +187,14 @@ class MVCView(tk.Frame):
 
     def create_radio_buttons(self, name, values):
         frame = tk.Frame(self)
-        frame.pack(fill='both', pady=(5, 20))
+        frame.pack(fill='both', pady=5)
 
         radio_buttons = []
         self.radio_buttons[name] = variable = tk.IntVar(value=0)
 
         for index, text in enumerate(values):
             radio_button = tk.Radiobutton(frame, text=text, variable=variable, value=index)
-            radio_button.pack(anchor='w')
+            radio_button.pack(anchor='w', side='left')
             radio_buttons.append(radio_button)
 
         return frame, radio_buttons, variable
@@ -390,12 +390,11 @@ class ConnectionPanelView(MVCView):
 
         # Header label connection settings
         self.create_label_header('Connection data settings:')
-        self.create_radio_buttons('Show', [
-            'Disable displaying incoming data',
-            'Show all', 'Show messages', 'Show data'])
 
         # Header label incoming data
         self.create_label_header('Incoming data:')
+        self.create_radio_buttons('Show', [
+            'Disable', 'Show all', 'Show messages', 'Show values'])
         self.create_text_field('In')
 
 
