@@ -144,6 +144,19 @@ class MVCView(tk.Frame):
         entry.pack(fill='both', pady=(5, 20), padx=5)
         return entry
 
+    def create_entry_with_button(self, name: str, text: str):
+        frame = tk.Frame(self)
+        frame.pack(fill='both', pady=(5, 20), padx=5)
+
+        self.entries[name] = entry = tk.Entry(frame)
+        entry.pack(fill='both', side='left', expand=True)
+
+        self.buttons[name] = button = tk.Button(frame, text=text)
+        button.configure(anchor='w', padx=8)
+        button.pack(fill='both', side='right')
+
+        return frame, entry, button
+
     def create_combobox(self, name, default_value, values=None):
         if values is None:
             values = []
