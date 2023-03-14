@@ -51,10 +51,10 @@ class ApplicationController:
         self.device_controller = DevicePanelController(tab_connection, interface)
         self.connection_controller = ConnectionPanelController(tab_connection, interface)
         self.recorder_controller = RecorderPanelController(tab_recorder, interface)
+        self.graph_filter_controller = GraphFilterPanelController(tab_graph_display, interface)
 
         # Fill the tabs with the content
         panel_graph_control(tab_graph_settings, interface)
-        panel_graph_filter(tab_graph_display, interface)
         panel_graph_view(tab_graph_display, interface)
 
     def todo(self):
@@ -250,6 +250,28 @@ def panel_graph_control(base, interface: InterfaceVariables):
     interface.tk_vars['y max'] = make_named_spinbox(frame, 'Max')
 
 
+class GraphFilterPanelView(MVCView):
+    def __init__(self, master):
+        super().__init__(master)
+
+        self.create_label_header('Graph filters:')
+
+        self.filter = frame = BoxedEntriesFrame(self)
+        self.filter.pack(fill='both', pady=5)
+
+        self.create_button('Remove', 'Remove filter').pack(side='bottom')
+        self.bind_button('Remove', frame.remove_entry)
+        self.create_button('Add', 'Add filter').pack(side='bottom')
+        self.bind_button('Add', frame.create_entry)
+
+
+class GraphFilterPanelController:
+    def __init__(self, master, interface):
+        self.interface = interface
+        self.view = GraphFilterPanelView(master)
+        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
+
+
 def panel_graph_filter(base, interface: InterfaceVariables):
     interface.tk_data['graph'] = button_list = [
         '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'
@@ -268,6 +290,13 @@ def panel_graph_view(base, interface: InterfaceVariables):
     frame = make_base_frame(base)
     frame.config(width=2000)
     graph = make_graph(frame)
+
+    interface.tk_data['graph'] = button_list = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'
+    ]
+    for name in button_list:
+        interface.tk_vars[name] = tk.IntVar(frame, value=0)
+    interface.graph_data['state'] = {}
 
     make_thread(build_thread_graph(graph, interface), interface, 'Serial graph')
     make_thread(build_thread_interface(graph, interface), interface, 'Interface manager')
