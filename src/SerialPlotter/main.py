@@ -1,6 +1,6 @@
 import tkinter as tk
-import tkinter.ttk as ttk
 from queue import Queue
+from tkinter import ttk as ttk
 from typing import Dict, List
 
 from serial.tools.list_ports import comports
@@ -63,6 +63,7 @@ class ApplicationController:
 class MVCView(tk.Frame):
     def __init__(self, *args, **kargs):
         super().__init__(*args, **kargs)
+        self.combo_boxes: Dict[str, ttk.Combobox] = {}
         self.check_buttons: Dict[str, tk.IntVar] = {}
         self.labels: Dict[str, tk.Label] = {}
         self.buttons: Dict[str, tk.Button] = {}
@@ -143,6 +144,12 @@ class MVCView(tk.Frame):
         entry.pack(fill='both', pady=(5, 20), padx=5)
         return entry
 
+    def create_combobox(self, name, default_value, values=None):
+        if values is None:
+            values = []
+        self.combo_boxes[name] = combobox = ttk.Combobox(self, values=values)
+        combobox.pack(fill='both', padx=5, pady=(5, 20))
+        combobox.set(default_value)
 
 
 def panel_graph_control(base, interface: InterfaceVariables):
@@ -186,7 +193,6 @@ def panel_graph_view(base, interface: InterfaceVariables):
 class DevicePanelView(MVCView):
     def __init__(self, master):
         super().__init__(master)
-        self.cboxes: Dict[str, ttk.Combobox] = {}
 
         # Header label available devices
         self.create_label_header('Available devices:')
@@ -207,10 +213,7 @@ class DevicePanelView(MVCView):
 
         # Combobox which list available devices to connect
         # Controller logic will update the list of devices
-        combobox = ttk.Combobox(self)
-        combobox.pack(fill='both', padx=5, pady=(5, 20))
-        combobox.set('None')
-        self.combobox = combobox
+        self.create_combobox('Device', 'None')
 
         # Buttons which are controlling the connection
         self.create_button('Refresh', 'Refresh')
@@ -246,7 +249,7 @@ class DevicePanelController:
 
     def connect_command(self):
         # Read the selected device name from the combobox
-        device_name = self.view.combobox.get()
+        device_name = self.view.combo_boxes['Device'].get()
 
         # Get the serial controller from the ???
         # Attempt connecting to the selected device
@@ -334,7 +337,7 @@ class DevicePanelController:
 
         # Update the text inside the label and the data inside the combobox
         self.view.update_label('Ports', label_text)
-        self.view.combobox['values'] = device_names
+        self.view.combo_boxes['Device']['values'] = device_names
 
     def send_command(self):
         entry = self.view.entries['Send']
