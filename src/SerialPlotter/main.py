@@ -374,12 +374,6 @@ class DevicePanelController:
         self.view.update_label('Ports', label_text)
         self.view.combo_boxes['Device']['values'] = device_names
 
-    def send_command(self):
-        entry = self.view.entries['Send']
-        data = entry.get()
-        entry.delete(0, tk.END)
-        self.interface.arduino.queue_out.put(data)
-
 
 class ConnectionPanelView(MVCView):
     def __init__(self, master):
@@ -398,7 +392,7 @@ class ConnectionPanelView(MVCView):
             'Show all', 'Show messages', 'Show data'])
 
         # Header label incoming data
-        self.create_label_header('Incoming data')
+        self.create_label_header('Incoming data:')
         self.create_text_field('In')
 
 
@@ -407,6 +401,13 @@ class ConnectionPanelController:
         self.interface = interface
         self.view = ConnectionPanelView(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
+        self.view.bind_button('Out', self.send_command)
+
+    def send_command(self):
+        entry = self.view.entries['Out']
+        data = entry.get()
+        entry.delete(0, tk.END)
+        self.interface.arduino.queue_out.put(data)
 
 
 class RecorderPanelView(MVCView):
