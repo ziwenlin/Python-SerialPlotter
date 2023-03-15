@@ -3,7 +3,7 @@ import unittest
 
 class TestSetupLibraries(unittest.TestCase):
 
-    @unittest.skip('This test takes 2 seconds to load')
+    @unittest.skip('Matplotlib import test takes 2 seconds to load')
     def test_matplotlib(self):
         try:
             import matplotlib
@@ -12,7 +12,7 @@ class TestSetupLibraries(unittest.TestCase):
             success = False
         self.assertTrue(success, 'matplotlib')
 
-    @unittest.skip('This test takes 5 seconds to load')
+    @unittest.skip('Matplotlib plot test takes 5 seconds to load')
     def test_matplotlib_plot(self):
         try:
             import matplotlib.pyplot as plt
