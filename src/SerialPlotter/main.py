@@ -130,9 +130,7 @@ class GraphFilterPanelView(mvc.MVCView):
         self.filter.pack(fill='both', pady=5)
 
         self.create_button('Remove', 'Remove filter').pack(side='bottom')
-        self.bind_button('Remove', frame.remove_entry)
         self.create_button('Add', 'Add filter').pack(side='bottom')
-        self.bind_button('Add', frame.create_entry)
 
 
 class GraphFilterPanelController:
@@ -140,6 +138,15 @@ class GraphFilterPanelController:
         self.interface = interface
         self.view = GraphFilterPanelView(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
+
+        self.view.bind_button('Add', self.command_add)
+        self.view.bind_button('Remove', self.command_remove)
+
+    def command_remove(self):
+        self.view.filter.remove_entry()
+
+    def command_add(self):
+        self.view.filter.create_entry()
 
 
 def panel_graph_view(base, interface: InterfaceVariables):
