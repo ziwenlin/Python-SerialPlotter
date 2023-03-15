@@ -121,7 +121,7 @@ def panel_graph_control(base, interface: InterfaceVariables):
     interface.tk_vars['y max'] = make_named_spinbox(frame, 'Max')
 
 
-class GraphFilterPanelView(mvc.MVCView):
+class GraphFilterPanelView(mvc.View):
     def __init__(self, master):
         super().__init__(master)
 
@@ -213,7 +213,7 @@ def panel_graph_view(base, interface: InterfaceVariables):
     make_thread(build_thread_interface(graph, interface), interface, 'Interface manager')
 
 
-class DevicePanelView(mvc.MVCView):
+class DevicePanelView(mvc.View):
     def __init__(self, master):
         super().__init__(master)
 
@@ -353,7 +353,7 @@ class DevicePanelController:
         self.view.combo_boxes['Device']['values'] = device_names
 
 
-class ConnectionPanelView(mvc.MVCView):
+class ConnectionPanelView(mvc.View):
     def __init__(self, master):
         super().__init__(master)
 
@@ -387,7 +387,7 @@ class ConnectionPanelController:
         self.interface.arduino.queue_out.put(data)
 
 
-class RecorderPanelView(mvc.MVCView):
+class RecorderPanelView(mvc.View):
     def __init__(self, master):
         super().__init__(master)
 

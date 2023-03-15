@@ -3,9 +3,9 @@ from tkinter import ttk as ttk
 from typing import Dict
 
 
-class MVCView(tk.Frame):
-    def __init__(self, *args, **k_args):
-        super().__init__(*args, **k_args)
+class View(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
         self.text_field: Dict[str, tk.Text] = {}
         self.combo_boxes: Dict[str, ttk.Combobox] = {}
         self.check_buttons: Dict[str, tk.IntVar] = {}
