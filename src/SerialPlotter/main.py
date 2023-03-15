@@ -133,6 +133,19 @@ class GraphFilterPanelView(mvc.MVCView):
         self.create_button('Add', 'Add filter').pack(side='bottom')
 
 
+class GraphFilterPanelModel:
+    filter_data: List[Dict[str, any]]
+
+    def __init__(self):
+        self.filter_data = []
+
+    def save(self):
+        pass
+
+    def load(self):
+        pass
+
+
 class GraphFilterPanelController:
     def __init__(self, master, interface):
         self.interface = interface
