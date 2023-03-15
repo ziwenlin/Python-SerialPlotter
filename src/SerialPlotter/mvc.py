@@ -1,3 +1,4 @@
+import abc
 import tkinter as tk
 from tkinter import ttk as ttk
 from typing import Dict
@@ -140,3 +141,13 @@ class View(tk.Frame):
             radio_buttons.append(radio_button)
 
         return frame, radio_buttons, variable
+
+
+class Model:
+    @abc.abstractmethod
+    def save(self):
+        pass
+
+    @abc.abstractmethod
+    def load(self):
+        pass
