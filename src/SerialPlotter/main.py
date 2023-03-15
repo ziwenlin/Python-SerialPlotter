@@ -149,6 +149,7 @@ class GraphFilterPanelModel:
 class GraphFilterPanelController:
     def __init__(self, master, interface):
         self.interface = interface
+        self.model = GraphFilterPanelModel()
         self.view = GraphFilterPanelView(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
 
@@ -160,6 +161,26 @@ class GraphFilterPanelController:
 
     def command_add(self):
         self.view.filter.create_entry()
+
+    def update_model(self):
+        frame = self.view.filter
+        self.model.filter_data.clear()
+        for entry in frame.entries:
+            state, text = entry.get_values()
+            self.model.filter_data.append({
+                'State': state,
+                'Name': text,
+            })
+
+    def update_view(self):
+        frame = self.view.filter
+        amount = len(self.model.filter_data) - len(frame.entries)
+        for _ in range(-amount):
+            frame.remove_entry()
+        for _ in range(amount):
+            frame.create_entry()
+        for entry, values in zip(frame.entries, self.model.filter_data):
+            entry.set_values(values['State'], values['Name'])
 
 
 def panel_graph_view(base, interface: InterfaceVariables):
