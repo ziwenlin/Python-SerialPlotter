@@ -1,11 +1,11 @@
+import threading
 import tkinter as tk
 from tkinter import ttk
-import threading
+from typing import Dict, List
 
 from .filehandler import json_load, json_save
 from .interfacegraph import GraphBase
 from .program import SerialHandler, SerialThread
-from typing import Dict, List
 
 UPDATE_INTERVAL = 500
 
@@ -15,6 +15,7 @@ class InterfaceVariables:
     tk_data: Dict[str, list] = {}
     graph_data: Dict[str, any] = {}
     settings = json_load()
+    extra_settings = {}
     arduino = SerialHandler()
     running = threading.Event()
 
@@ -23,7 +24,7 @@ class InterfaceVariables:
         self.threads: List[threading.Thread] = [thread_serial]
 
     def import_settings(self):
-        settings = self.settings
+        settings = self.settings = json_load()
         for key, value in settings.get('tk_vars').items():
             if key not in self.tk_vars:
                 continue
@@ -42,10 +43,14 @@ class InterfaceVariables:
         tk_vars = {key: value.get() for key, value in self.tk_vars.items()}
         tk_data = {'graph': self.tk_data['graph']}
         gr_data = {'state': self.graph_data['state']}
-        json_save({'version': version,
-                   'tk_vars': tk_vars,
-                   'tk_data': tk_data,
-                   'graph_data': gr_data})
+        settings = {
+            'version': version,
+            'tk_vars': tk_vars,
+            'tk_data': tk_data,
+            'graph_data': gr_data,
+        }
+        settings.update(self.extra_settings)
+        json_save(settings)
 
     def start_threads(self):
         self.running.is_set()
