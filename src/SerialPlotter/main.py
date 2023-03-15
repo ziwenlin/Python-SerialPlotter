@@ -82,6 +82,7 @@ class BoxedEntriesFrame(tk.Frame):
 
         def set_values(self, state: int, text: str):
             self.variable.set(state)
+            self.entry.delete(0, tk.END)
             self.entry.insert(0, text)
 
     def __init__(self, master):
@@ -129,6 +130,8 @@ class GraphFilterPanelView(mvc.MVCView):
         self.filter = BoxedEntriesFrame(self)
         self.filter.pack(fill='both', pady=5)
 
+        self.create_button('Restore', 'Restore filter').pack(side='bottom')
+        self.create_button('Save', 'Save filter').pack(side='bottom')
         self.create_button('Remove', 'Remove filter').pack(side='bottom')
         self.create_button('Add', 'Add filter').pack(side='bottom')
 
@@ -155,12 +158,23 @@ class GraphFilterPanelController:
 
         self.view.bind_button('Add', self.command_add)
         self.view.bind_button('Remove', self.command_remove)
+        self.view.bind_button('Save', self.command_save)
+        self.view.bind_button('Restore', self.command_restore)
+
+        self.model.load()
+        self.update_view()
 
     def command_remove(self):
         self.view.filter.remove_entry()
 
     def command_add(self):
         self.view.filter.create_entry()
+
+    def command_save(self):
+        self.update_model()
+
+    def command_restore(self):
+        self.update_view()
 
     def update_model(self):
         frame = self.view.filter
