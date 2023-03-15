@@ -63,38 +63,46 @@ class ApplicationController:
 
 
 class BoxedEntriesFrame(tk.Frame):
+    class BoxedEntry(tk.Frame):
+        def __init__(self, master):
+            super().__init__(master)
+            self.variable = variable = tk.IntVar(self)
+
+            self.check_button = tk.Checkbutton(self, variable=variable)
+            self.check_button.pack(side='left')
+
+            self.entry = tk.Entry(self)
+            self.entry.pack(side='left', fill='x')
+
+        def get_elements(self):
+            return self.variable, self.check_button, self.entry
+
+        def get_values(self):
+            return self.variable.get(), self.entry.get()
+
+        def set_values(self, state: int, text: str):
+            self.variable.set(state)
+            self.entry.insert(0, text)
+
     def __init__(self, master):
         super().__init__(master)
-        self.check_buttons_vars: List[tk.IntVar] = []
-        self.check_buttons: List[tk.Checkbutton] = []
-        self.entries: List[tk.Entry] = []
-        self.frames: List[tk.Frame] = []
+        self.entries: List[BoxedEntriesFrame.BoxedEntry] = []
         self.create_entry()
 
     def remove_entry(self):
-        if len(self.frames) <= 1:
+        if len(self.entries) <= 1:
             return
-        frame = self.frames.pop()
+        frame = self.entries.pop()
         for child in frame.winfo_children():
             child.destroy()
         frame.destroy()
 
     def create_entry(self):
-        frame = tk.Frame(self)
+        frame = BoxedEntriesFrame.BoxedEntry(self)
         frame.pack(fill='both', expand=True, side='top', anchor='n')
 
-        variable = tk.IntVar(frame)
-        check_button = tk.Checkbutton(frame, variable=variable)
-        check_button.pack(side='left')
-
-        entry = tk.Entry(frame)
-        entry.pack(side='left', fill='x')
-
-        self.frames.append(frame)
-        self.entries.append(entry)
-        self.check_buttons.append(check_button)
-        self.check_buttons_vars.append(variable)
-        return frame, check_button, entry, variable
+        self.entries.append(frame)
+        return frame
 
 
 def panel_graph_control(base, interface: InterfaceVariables):
@@ -118,7 +126,7 @@ class GraphFilterPanelView(mvc.MVCView):
 
         self.create_label_header('Graph filters:')
 
-        self.filter = frame = BoxedEntriesFrame(self)
+        self.filter = BoxedEntriesFrame(self)
         self.filter.pack(fill='both', pady=5)
 
         self.create_button('Remove', 'Remove filter').pack(side='bottom')
