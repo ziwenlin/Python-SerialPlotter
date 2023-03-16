@@ -32,8 +32,20 @@ class ApplicationView(mvc.View):
         return frame
 
 
+class ApplicationModel(mvc.Model):
+    def __init__(self):
+        pass
+
+    def save(self):
+        pass
+
+    def load(self):
+        pass
+
+
 class ApplicationController(mvc.Controller):
     def __init__(self, master: tk.Tk, interface):
+        self.model = ApplicationModel()
         self.view = ApplicationView(master)
         self.view.pack(fill='both', expand=True)
         self.master = master
@@ -82,7 +94,6 @@ def __main__():
 
     # Protocol when the user want to close the window
     root.protocol('WM_DELETE_WINDOW', controller.on_close)
-
     root.mainloop()
 
 
