@@ -6,6 +6,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 
+from .. import mvc
+
 
 class GraphFrame(tk.Frame):
     def __init__(self, master):
@@ -26,3 +28,18 @@ class GraphFrame(tk.Frame):
         # Create the plots and lines
         self.plot: Axes = self.figure.add_subplot()
         self.lines: List[Line2D] = []
+
+
+class View(mvc.View):
+    def __init__(self, master):
+        super().__init__(master)
+        self.config(width=2000)
+        self.graph = GraphFrame(self)
+        self.graph.pack(fill='both', expand=True)
+
+
+class Controller(mvc.Controller):
+    def __init__(self, master, interface):
+        self.interface = interface
+        self.view = View(master)
+        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)

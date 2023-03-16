@@ -4,7 +4,7 @@ from typing import Dict
 
 from . import mvc
 from .interfacebuilder import make_base_frame, InterfaceVariables, make_graph, make_thread
-from .panels import connection, device, recorder, graph_filter
+from .panels import connection, device, recorder, graph_filter, graph
 from .threadbuilder import build_thread_graph
 
 
@@ -50,9 +50,7 @@ class ApplicationController(mvc.Controller):
         self.connection_controller = connection.Controller(tab_connection, interface)
         self.recorder_controller = recorder.Controller(tab_recorder, interface)
         self.graph_filter_controller = graph_filter.Controller(tab_graph_display, interface)
-
-        # Fill the tabs with the content
-        panel_graph_view(tab_graph_display, interface)
+        self.graph_display_controller = graph.Controller(tab_graph_display, interface)
 
     def on_close(self):
         self.device_controller.on_close()
