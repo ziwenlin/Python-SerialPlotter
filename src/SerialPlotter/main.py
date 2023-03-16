@@ -3,9 +3,8 @@ from tkinter import ttk as ttk
 from typing import Dict
 
 from . import mvc
-from .interfacebuilder import make_base_frame, InterfaceVariables, make_graph, make_thread
+from .interfacebuilder import InterfaceVariables
 from .panels import connection, device, recorder, graph_filter, graph
-from .threadbuilder import build_thread_graph
 
 
 class ApplicationView(mvc.View):
@@ -68,21 +67,6 @@ class ApplicationController(mvc.Controller):
 
     def todo(self):
         pass
-
-
-def panel_graph_view(base, interface: InterfaceVariables):
-    frame = make_base_frame(base)
-    frame.config(width=2000)
-    graph = make_graph(frame)
-
-    interface.tk_data['graph'] = button_list = [
-        '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'
-    ]
-    for name in button_list:
-        interface.tk_vars[name] = tk.IntVar(frame, value=0)
-    interface.graph_data['state'] = {}
-
-    make_thread(build_thread_graph(graph, interface), interface, 'Serial graph')
 
 
 def __main__():
