@@ -1,6 +1,8 @@
 import tkinter as tk
+from typing import Dict
 
 from .. import mvc
+from ..filehandler import json_load, json_save
 
 
 class View(mvc.View):
@@ -21,6 +23,27 @@ class View(mvc.View):
         self.create_radio_buttons('Show', [
             'Disable', 'Show all', 'Show messages', 'Show values'])
         self.create_text_field('In')
+
+
+class Model(mvc.Model):
+    settings: Dict[str, any]
+
+    def __init__(self):
+        self.settings = {
+            'command': '',
+            'show': 0,
+            'keep': 0,
+        }
+
+    def save(self):
+        settings = json_load()
+        settings['iostream'] = self.settings
+        json_save(settings)
+
+    def load(self):
+        settings = json_load()
+        if 'iostream' in settings:
+            self.settings = settings['iostream']
 
 
 class Controller(mvc.Controller):
