@@ -14,6 +14,11 @@ class ThreadManager:
         self.running = threading.Event()
         self.threads = []
 
+    def add_thread(self, thread: threading.Thread):
+        if self.running.is_set():
+            thread.start()
+        self.threads.append(thread)
+
     def start_threads(self):
         self.running.is_set()
         for thread in self.threads:
