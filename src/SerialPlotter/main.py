@@ -6,6 +6,7 @@ from typing import Dict
 from . import mvc
 from .filehandler import csv_save_append, csv_save_create, json_load, json_save
 from .interfacebuilder import make_base_frame, InterfaceVariables, make_graph, make_thread
+from .panels import connection
 from .panels import device
 from .panels import graph_filter
 from .threadbuilder import build_thread_graph, build_thread_csv
@@ -50,7 +51,7 @@ class ApplicationController(mvc.Controller):
 
         # Create sub controllers and link it to the notebook tabs
         self.device_controller = device.Controller(tab_connection, interface)
-        self.connection_controller = ConnectionPanelController(tab_connection, interface)
+        self.connection_controller = connection.Controller(tab_connection, interface)
         self.recorder_controller = RecorderPanelController(tab_recorder, interface)
         self.graph_filter_controller = graph_filter.Controller(tab_graph_display, interface)
 
@@ -88,49 +89,6 @@ def panel_graph_view(base, interface: InterfaceVariables):
     interface.graph_data['state'] = {}
 
     make_thread(build_thread_graph(graph, interface), interface, 'Serial graph')
-
-
-class ConnectionPanelView(mvc.View):
-    def __init__(self, master):
-        super().__init__(master)
-
-        # Header label send command
-        # Entry for send command
-        # Button which sends the command
-        self.create_label_header('Send command to device:')
-        self.create_entry_with_button('Out', 'Send')
-
-        # Header label connection settings
-        self.create_label_header('Connection data settings:')
-
-        # Header label incoming data
-        self.create_label_header('Incoming data:')
-        self.create_radio_buttons('Show', [
-            'Disable', 'Show all', 'Show messages', 'Show values'])
-        self.create_text_field('In')
-
-
-class ConnectionPanelController(mvc.Controller):
-    def __init__(self, master, interface):
-        self.interface = interface
-        self.view = ConnectionPanelView(master)
-        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
-        self.view.bind_button('Out', self.send_command)
-
-    def on_close(self):
-        pass
-
-    def update_model(self):
-        pass
-
-    def update_view(self):
-        pass
-
-    def send_command(self):
-        entry = self.view.entries['Out']
-        data = entry.get()
-        entry.delete(0, tk.END)
-        self.interface.arduino.queue_out.put(data)
 
 
 class RecorderPanelView(mvc.View):
