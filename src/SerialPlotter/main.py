@@ -427,6 +427,23 @@ class RecorderPanelView(mvc.View):
         self.create_check_button('File overwrite', 'Overwrite recorder save file data when saving manually')
 
 
+class RecorderPanelModel(mvc.Model):
+    recorder_settings: Dict[str, any]
+
+    def __init__(self):
+        self.recorder_settings = {}
+
+    def save(self):
+        settings = json_load()
+        settings['recorder'] = self.recorder_settings
+        json_save(settings)
+
+    def load(self):
+        settings = json_load()
+        if 'recorder' in settings:
+            self.recorder_settings = settings['recorder']
+
+
 class RecorderPanelController:
     def __init__(self, master, interface):
         self.interface = interface
