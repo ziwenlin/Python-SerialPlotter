@@ -10,7 +10,7 @@ from .filehandler import csv_save_append, csv_save_create, json_load, json_save
 from .interfacebuilder import make_base_frame, make_spaced_label, make_spacer, \
     InterfaceVariables, make_graph, make_thread, make_check_button, \
     make_named_spinbox
-from .threadbuilder import build_thread_interface, build_thread_graph, build_thread_csv
+from .threadbuilder import build_thread_graph, build_thread_csv
 
 
 class ApplicationView(mvc.View):
@@ -237,7 +237,6 @@ def panel_graph_view(base, interface: InterfaceVariables):
     interface.graph_data['state'] = {}
 
     make_thread(build_thread_graph(graph, interface), interface, 'Serial graph')
-    make_thread(build_thread_interface(graph, interface), interface, 'Interface manager')
 
 
 class DevicePanelView(mvc.View):

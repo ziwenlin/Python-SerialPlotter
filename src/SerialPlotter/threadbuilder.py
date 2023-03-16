@@ -27,60 +27,6 @@ from .interfacebuilder import InterfaceVariables
 #             interface.graph_data[key] = data
 
 
-def build_thread_interface(graph, interface: InterfaceVariables):
-    from time import sleep
-    filter_state = interface.graph_data['state']
-    graph_filters = interface.tk_data.get('graph')
-    tk_vars = interface.tk_vars
-
-    def set_graph_lim():
-        try:
-            x_min = float(tk_vars.get('x min').get())
-            x_max = float(tk_vars.get('x max').get())
-            y_min = float(tk_vars.get('y min').get())
-            y_max = float(tk_vars.get('y max').get())
-        except ValueError:
-            return
-        if x_min == x_max:
-            x_min -= 1
-        if y_min == y_max:
-            y_min -= 1
-        graph.plot.set_xlim(x_min, x_max)
-        graph.plot.set_ylim(y_min, y_max)
-
-    def set_slider_lim():
-        x_min, x_max = graph.plot.get_xlim()
-        y_min, y_max = graph.plot.get_ylim()
-        tk_vars.get('x min').set(f'{x_min:.2f}')
-        tk_vars.get('x max').set(f'{x_max:.2f}')
-        tk_vars.get('y min').set(f'{y_min:.2f}')
-        tk_vars.get('y max').set(f'{y_max:.2f}')
-
-    def update_graph_filter():
-        for i, filter in enumerate(graph_filters):
-            state = interface.tk_vars.get(filter).get() == 1
-            filter_state.update({i: state})
-
-    def interface_manager():
-        while interface.running.is_set():
-            if interface.tk_vars.get('Lock axis').get() == 1:
-                set_graph_lim()
-            if not interface.running.is_set():
-                return
-            if interface.tk_vars.get('Copy axis').get() == 1:
-                set_slider_lim()
-            if not interface.running.is_set():
-                return
-            update_graph_filter()
-            if not interface.running.is_set():
-                return
-            sleep(0.4)
-
-    # set_graph_lim()
-    # set_slider_lim()
-    return interface_manager
-
-
 def build_thread_graph(graph, interface: InterfaceVariables):
     from time import sleep
     csv_queue: Queue = interface.graph_data['auto csv']
