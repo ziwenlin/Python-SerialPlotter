@@ -8,11 +8,15 @@ UPDATE_INTERVAL = 500
 
 class InterfaceVariables:
     arduino = SerialHandler()
+
+
+class ThreadManager:
     running = threading.Event()
+    threads: List[threading.Thread]
 
     def __init__(self):
-        thread_serial = SerialThread(self.running, self.arduino)
-        self.threads: List[threading.Thread] = [thread_serial]
+        thread_serial = SerialThread(self.running, InterfaceVariables.arduino)
+        self.threads = [thread_serial]
 
     def start_threads(self):
         self.running.is_set()
@@ -33,4 +37,3 @@ class InterfaceVariables:
                 break
             else:
                 tries += 1
-
