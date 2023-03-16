@@ -19,8 +19,8 @@ class ApplicationView(mvc.View):
         # Create the tab frames
         self.create_notebook_tab('Connection')
         self.create_notebook_tab('Recorder')
-        self.create_notebook_tab('Graph display')
-        self.create_notebook_tab('Graph settings')
+        self.create_notebook_tab('Graph')
+        self.create_notebook_tab('Settings')
 
     def create_notebook_tab(self, name: str):
         frame = tk.Frame(self.notebook)
@@ -41,8 +41,8 @@ class ApplicationController(mvc.Controller):
         # Gather the frames of the notebook tabs
         tab_connection = self.view.notebook_tabs['Connection']
         tab_recorder = self.view.notebook_tabs['Recorder']
-        tab_graph_display = self.view.notebook_tabs['Graph display']
-        tab_graph_settings = self.view.notebook_tabs['Graph settings']
+        tab_graph_display = self.view.notebook_tabs['Graph']
+        tab_graph_settings = self.view.notebook_tabs['Settings']
 
         # Create sub controllers and link it to the notebook tabs
         self.device_controller = device.Controller(tab_connection, interface)
