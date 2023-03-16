@@ -69,9 +69,9 @@ class Controller(mvc.Controller):
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
 
-        self.view.bind_button('Save', self.save_command)
-        self.view.bind_button('Start', self.start_command)
-        self.view.bind_button('Pause', self.pause_command)
+        self.view.bind_button('Save', self.command_save)
+        self.view.bind_button('Start', self.command_start)
+        self.view.bind_button('Pause', self.command_pause)
 
         self.model.load()
         self.update_view()
@@ -95,7 +95,7 @@ class Controller(mvc.Controller):
         self.view.check_buttons['File append'].set(settings['file_append'])
         self.view.check_buttons['File overwrite'].set(settings['file_overwrite'])
 
-    def save_command(self):
+    def command_save(self):
         record_data = self.interface.graph_data['record csv']
         auto_save_var = self.view.check_buttons['Auto save']
         file_append_var = self.view.check_buttons['File append']
@@ -120,8 +120,8 @@ class Controller(mvc.Controller):
             success = f'Something went wrong with {name}.csv'
         self.view.update_label('Status', success)
 
-    def start_command(self):
+    def command_start(self):
         self.view.update_label('Status', 'Started recording')
 
-    def pause_command(self):
+    def command_pause(self):
         self.view.update_label('Status', 'Paused recording')

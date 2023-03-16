@@ -53,7 +53,7 @@ class Controller(mvc.Controller):
         self.model = Model()
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
-        self.view.bind_button('Out', self.send_command)
+        self.view.bind_button('Out', self.command_send)
 
         self.model.load()
         self.update_view()
@@ -75,7 +75,7 @@ class Controller(mvc.Controller):
         self.view.radio_buttons['Show'].set(settings['show'])
         self.view.radio_buttons['Remember'].set(settings['keep'])
 
-    def send_command(self):
+    def command_send(self):
         entry = self.view.entries['Out']
         state = self.view.radio_buttons['Remember'].get()
         data = entry.get()

@@ -48,10 +48,10 @@ class Controller(mvc.Controller):
         self.interface = interface
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
-        self.view.bind_button('Connect', self.connect_command)
-        self.view.bind_button('Disconnect', self.disconnect_command)
-        self.view.bind_button('Reconnect', self.reconnect_command)
-        self.view.bind_button('Refresh', self.refresh_command)
+        self.view.bind_button('Connect', self.command_connect)
+        self.view.bind_button('Disconnect', self.command_disconnect)
+        self.view.bind_button('Reconnect', self.command_reconnect)
+        self.view.bind_button('Refresh', self.command_refresh)
 
     def on_close(self):
         pass
@@ -62,7 +62,7 @@ class Controller(mvc.Controller):
     def update_view(self):
         pass
 
-    def connect_command(self):
+    def command_connect(self):
         # Read the selected device name from the combobox
         device_name = self.view.combo_boxes['Device'].get()
 
@@ -82,7 +82,7 @@ class Controller(mvc.Controller):
         # Update the connection status label
         self.view.update_label('Success', status)
 
-    def disconnect_command(self):
+    def command_disconnect(self):
         # Get the serial controller from the ???
         # Attempt disconnecting from the current device
         controller = self.interface.serial_controller
@@ -99,7 +99,7 @@ class Controller(mvc.Controller):
         # Update the connection status label
         self.view.update_label('Success', message)
 
-    def reconnect_command(self):
+    def command_reconnect(self):
         # Get the serial controller from the ???
         # Get the currently connected device name
         controller = self.interface.serial_controller
@@ -122,7 +122,7 @@ class Controller(mvc.Controller):
         # Update the connection status label
         self.view.update_label('Success', message)
 
-    def refresh_command(self):
+    def command_refresh(self):
         # Gather the ports and extract the device names into a new list
         device_names = [port.device for port in comports()]
 
