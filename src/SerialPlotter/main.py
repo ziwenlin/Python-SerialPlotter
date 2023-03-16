@@ -56,7 +56,6 @@ class ApplicationController(mvc.Controller):
         self.connection_controller.on_close()
         self.recorder_controller.on_close()
         self.graph_filter_controller.on_close()
-        self.interface.import_settings()
         self.master.after(100, self.master.destroy)
 
     def update_model(self):

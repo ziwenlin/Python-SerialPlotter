@@ -77,13 +77,6 @@ class Controller(mvc.Controller):
         self.model.load()
         self.update_view()
 
-        # IDK what these would do, but it should not be in view
-        self.trigger = trigger = {'start': False, 'name': self.view.entries['Save'].get()}
-        interface.tk_vars['Auto save'] = self.view.check_buttons['Auto save']
-        interface.graph_data['record csv'] = []
-        interface.graph_data['auto csv'] = Queue()
-        make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
-
     def on_close(self):
         self.update_model()
         self.model.save()
@@ -129,10 +122,7 @@ class Controller(mvc.Controller):
         self.view.update_label('Status', success)
 
     def start_command(self):
-        self.trigger['start'] = True
-        self.trigger['name'] = self.view.entries['Save'].get()
         self.view.update_label('Status', 'Started recording')
 
     def pause_command(self):
-        self.trigger['start'] = False
         self.view.update_label('Status', 'Paused recording')

@@ -105,7 +105,6 @@ class Controller(mvc.Controller):
     def command_save(self):
         self.update_model()
         self.model.save()
-        self.interface.import_settings()
 
     def command_restore(self):
         self.model.load()
