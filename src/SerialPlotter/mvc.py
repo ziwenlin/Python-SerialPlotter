@@ -8,6 +8,7 @@ class View(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.text_field: Dict[str, tk.Text] = {}
+        self.spin_boxes: Dict[str, tk.StringVar] = {}
         self.combo_boxes: Dict[str, ttk.Combobox] = {}
         self.check_buttons: Dict[str, tk.IntVar] = {}
         self.radio_buttons: Dict[str, tk.IntVar] = {}
@@ -142,6 +143,31 @@ class View(tk.Frame):
 
         return frame, radio_buttons, variable
 
+    def create_spinbox(self, name, text, limits=(-10, 10, 0.1)):
+        a, b, c = limits
+        frame = tk.Frame(self)
+        frame.pack(fill='both', pady=5)
+
+        label = tk.Label(frame, text=text)
+        label.pack(side='left', fill='both', anchor='e')
+
+        self.spin_boxes[name] = variable = tk.StringVar(frame, value='0')
+        spinbox = tk.Spinbox(frame, textvariable=variable, from_=a, to=b, increment=c)
+        spinbox.bind('<MouseWheel>', _scrolling_event(variable, 5 * c))
+        spinbox.pack(side='right', fill='both', anchor='w')
+
+
+def _scrolling_event(tk_var: tk.StringVar, multiplier: float = 1):
+    def scrolling(event):
+        value = tk_var.get()
+        try:
+            value = float(value) + multiplier * (event.delta / 120)
+            tk_var.set(f'{value:.2f}')
+        except ValueError:
+            tk_var.set('0')
+
+    return scrolling
+
 
 class Model:
     @abc.abstractmethod
@@ -151,6 +177,7 @@ class Model:
     @abc.abstractmethod
     def load(self):
         pass
+
 
 class Controller:
     @abc.abstractmethod
