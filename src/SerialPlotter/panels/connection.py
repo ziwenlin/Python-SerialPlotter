@@ -3,6 +3,7 @@ from typing import Dict
 
 from .. import mvc
 from ..filehandler import json_load, json_save
+from ..interfacebuilder import ThreadInterface
 
 
 class View(mvc.View):
@@ -47,7 +48,7 @@ class Model(mvc.Model):
 
 
 class Controller(mvc.Controller):
-    def __init__(self, master, interface):
+    def __init__(self, master, interface: ThreadInterface):
         self.interface = interface
         self.model = Model()
         self.view = View(master)
@@ -80,4 +81,4 @@ class Controller(mvc.Controller):
         data = entry.get()
         if state == 0:
             entry.delete(0, tk.END)
-        self.interface.arduino.queue_out.put(data)
+        self.interface.serial_controller.queue_out.put(data)

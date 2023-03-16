@@ -6,11 +6,11 @@ from .program import SerialHandler, SerialThread
 UPDATE_INTERVAL = 500
 
 
-class InterfaceVariables:
-    arduino: SerialHandler
+class ThreadInterface:
+    serial_controller: SerialHandler
 
     def __init__(self):
-        self.arduino = SerialHandler()
+        self.serial_controller = SerialHandler()
 
 class ThreadManager:
     running: threading.Event

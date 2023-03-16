@@ -4,8 +4,7 @@ from typing import Dict
 
 from .. import mvc
 from ..filehandler import json_load, json_save, csv_save_append, csv_save_create
-from ..interfacebuilder import make_thread
-from ..threadbuilder import build_thread_csv
+from ..interfacebuilder import ThreadInterface
 
 
 class View(mvc.View):
@@ -64,7 +63,7 @@ class Model(mvc.Model):
 
 
 class Controller(mvc.Controller):
-    def __init__(self, master, interface):
+    def __init__(self, master, interface: ThreadInterface):
         self.interface = interface
         self.model = Model()
         self.view = View(master)

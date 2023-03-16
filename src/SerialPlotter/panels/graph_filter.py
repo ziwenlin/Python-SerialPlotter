@@ -3,6 +3,7 @@ from typing import List, Dict
 
 from .. import mvc
 from ..filehandler import json_load, json_save
+from ..interfacebuilder import ThreadInterface
 
 
 class BoxedEntriesFrame(tk.Frame):
@@ -82,7 +83,7 @@ class Model(mvc.Model):
 
 
 class Controller(mvc.Controller):
-    def __init__(self, master, interface):
+    def __init__(self, master, interface: ThreadInterface):
         self.interface = interface
         self.model = Model()
         self.view = View(master)

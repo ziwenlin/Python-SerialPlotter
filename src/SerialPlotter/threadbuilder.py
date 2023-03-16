@@ -1,7 +1,7 @@
 from queue import Queue
 
 from .filehandler import csv_save_append, csv_save_auto, json_save, json_load
-from .interfacebuilder import InterfaceVariables
+from .interfacebuilder import ThreadInterface
 
 
 # def build_thread_settings(interface: InterfaceVariables):
@@ -27,12 +27,12 @@ from .interfacebuilder import InterfaceVariables
 #             interface.graph_data[key] = data
 
 
-def build_thread_graph(graph, interface: InterfaceVariables):
+def build_thread_graph(graph, interface: ThreadInterface):
     from time import sleep
     csv_queue: Queue = interface.graph_data['auto csv']
     filter_state: dict = interface.graph_data['state']
     data: list = []
-    queue = interface.arduino.queue_in
+    queue = interface.serial_controller.queue_in
 
     def get_queue_data():
         while not queue.empty():
@@ -68,7 +68,7 @@ def build_thread_graph(graph, interface: InterfaceVariables):
     return serial_graph
 
 
-def build_thread_csv(trigger: dict, interface: InterfaceVariables):
+def build_thread_csv(trigger: dict, interface: ThreadInterface):
     from time import sleep
     auto_queue: Queue = interface.graph_data['auto csv']
     record_data: list = interface.graph_data['record csv']

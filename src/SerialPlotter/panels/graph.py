@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 
 from .. import mvc
+from ..interfacebuilder import ThreadInterface
 
 
 class GraphFrame(tk.Frame):
@@ -39,7 +40,7 @@ class View(mvc.View):
 
 
 class Controller(mvc.Controller):
-    def __init__(self, master, interface):
+    def __init__(self, master, interface: ThreadInterface):
         self.interface = interface
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)

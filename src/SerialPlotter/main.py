@@ -3,7 +3,7 @@ from tkinter import ttk as ttk
 from typing import Dict
 
 from . import mvc
-from .interfacebuilder import InterfaceVariables
+from .interfacebuilder import ThreadInterface
 from .panels import connection, device, recorder, graph_filter, graph
 
 
@@ -44,7 +44,7 @@ class ApplicationModel(mvc.Model):
 
 
 class ApplicationController(mvc.Controller):
-    def __init__(self, master: tk.Tk, interface):
+    def __init__(self, master: tk.Tk, interface: ThreadInterface):
         self.model = ApplicationModel()
         self.view = ApplicationView(master)
         self.view.pack(fill='both', expand=True)
@@ -87,7 +87,7 @@ def __main__():
     root = tk.Tk()
 
     # Creating interface between threads
-    interface = InterfaceVariables()
+    interface = ThreadInterface()
 
     # Creating the application
     controller = ApplicationController(root, interface)

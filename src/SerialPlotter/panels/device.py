@@ -3,6 +3,7 @@ from typing import List
 from serial.tools.list_ports import comports
 
 from .. import mvc
+from ..interfacebuilder import ThreadInterface
 
 
 class View(mvc.View):
@@ -43,7 +44,7 @@ class Model:
 
 
 class Controller(mvc.Controller):
-    def __init__(self, master, interface):
+    def __init__(self, master, interface: ThreadInterface):
         self.interface = interface
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
@@ -67,7 +68,7 @@ class Controller(mvc.Controller):
 
         # Get the serial controller from the ???
         # Attempt connecting to the selected device
-        controller = self.interface.arduino
+        controller = self.interface.serial_controller
         success = controller.connect(device_name)
 
         # Translate success into a status message
@@ -84,7 +85,7 @@ class Controller(mvc.Controller):
     def disconnect_command(self):
         # Get the serial controller from the ???
         # Attempt disconnecting from the current device
-        controller = self.interface.arduino
+        controller = self.interface.serial_controller
         success = controller.disconnect()
 
         # Translate success into a status message
@@ -101,7 +102,7 @@ class Controller(mvc.Controller):
     def reconnect_command(self):
         # Get the serial controller from the ???
         # Get the currently connected device name
-        controller = self.interface.arduino
+        controller = self.interface.serial_controller
         device_name = controller.serial.name
 
         # Attempt disconnecting and reconnecting to the current device
