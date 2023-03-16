@@ -3,7 +3,7 @@ from tkinter import ttk as ttk
 from typing import Dict
 
 from . import mvc
-from .interfacebuilder import ThreadInterface
+from .thread import ThreadInterface
 from .panels import connection, device, recorder, graph_filter, graph
 
 

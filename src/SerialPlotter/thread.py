@@ -1,7 +1,7 @@
 import threading
 from typing import List
 
-from .program import SerialHandler, SerialThread
+from .program import SerialHandler
 
 UPDATE_INTERVAL = 500
 

@@ -3,7 +3,7 @@ from typing import Dict
 
 from .. import mvc
 from ..filehandler import json_load, json_save
-from ..interfacebuilder import ThreadInterface
+from ..thread import ThreadInterface
 
 
 class View(mvc.View):
