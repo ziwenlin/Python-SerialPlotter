@@ -151,3 +151,16 @@ class Model:
     @abc.abstractmethod
     def load(self):
         pass
+
+class Controller:
+    @abc.abstractmethod
+    def on_close(self):
+        pass
+
+    @abc.abstractmethod
+    def update_model(self):
+        pass
+
+    @abc.abstractmethod
+    def update_view(self):
+        pass
