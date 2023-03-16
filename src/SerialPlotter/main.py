@@ -3,8 +3,8 @@ from tkinter import ttk as ttk
 from typing import Dict
 
 from . import mvc
-from .thread import ThreadInterface
 from .panels import connection, device, recorder, graph_filter, graph
+from .thread import ThreadInterface
 
 
 class ApplicationView(mvc.View):
@@ -66,13 +66,15 @@ class ApplicationController(mvc.Controller):
 
     def on_close(self):
         # Called when the user wants to close the application
-        self.master.after(100, self.master.destroy)
+        self.master.after(500, self.master.destroy)
+        self.device_controller.command_disconnect()
         self.interface.thread_manager.stop_threads()
         # Run the close procedure in the controllers
         self.device_controller.on_close()
         self.connection_controller.on_close()
         self.recorder_controller.on_close()
         self.graph_filter_controller.on_close()
+        self.graph_display_controller.on_close()
 
     def update_model(self):
         pass
