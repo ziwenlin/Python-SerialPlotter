@@ -25,15 +25,21 @@ class ThreadManager:
 
     def stop_threads(self):
         self.running.clear()
+        for thread in self.threads:
+            thread.join(1)
+
+    def exit_threads(self, max_tries=10):
         tries = 1
-        # print('Active threads now:', threading.active_count())
         while threading.active_count() > 1:
             for thread in self.threads:
-                thread.join(2)
-                if tries > 2 and thread.is_alive():
-                    print('Stuborn thread:', thread.name)
-            if tries > 3:
+                if not thread.is_alive():
+                    continue
+                thread.join(1)
+                if tries < max_tries:
+                    continue
+                print('Stuborn thread:', thread.name)
+            if tries > max_tries:
                 print('Force close python')
                 break
-            else:
-                tries += 1
+            tries += 1
+        print('Active threads:', threading.active_count())
