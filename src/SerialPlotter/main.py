@@ -4,10 +4,7 @@ from typing import Dict
 
 from . import mvc
 from .interfacebuilder import make_base_frame, InterfaceVariables, make_graph, make_thread
-from .panels import connection
-from .panels import device
-from .panels import graph_filter
-from .panels import recorder
+from .panels import connection, device, recorder, graph_filter
 from .threadbuilder import build_thread_graph
 
 
