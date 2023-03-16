@@ -1,8 +1,9 @@
 import queue
+import threading
+import random
+from time import sleep
 
 import serial.tools.list_ports
-import threading
-from time import sleep
 
 test_count = 0
 
@@ -45,13 +46,22 @@ class SerialHandler:
         self.data = []
         self.buffer = ''
         self.counter = 0
+        self.debug = False
 
     def available(self):
+        if self.debug:
+            self.counter += 1
+            sleep(0.2)
+            return self.counter
         if not self.is_running.is_set():
             return 0
         return self.serial.inWaiting()
 
     def connect(self, name):
+        if name == 'debug':
+            self.debug = True
+            self.is_running.set()
+            return True
         for p in serial.tools.list_ports.comports():
             if p.name == name:
                 break
@@ -67,10 +77,17 @@ class SerialHandler:
         if not self.is_running.is_set():
             return False
         self.is_running.clear()
+        if self.debug:
+            self.debug = False
+            return True
         self.serial.close()
         return True
 
     def read(self):
+        if self.debug:
+            self.counter = 0
+            self.queue_in.put([random.random() for _ in range(3)])
+            return
         if not self.is_running.is_set():
             return
         buffer = self.serial.read(32)
@@ -80,7 +97,13 @@ class SerialHandler:
         except:
             self.data = ''
             self.buffer = ''
+
     def write(self):
+        if self.debug:
+            while not self.queue_out.empty():
+                data: str = self.queue_out.get()
+                print(data)
+            return
         if not self.is_running.is_set():
             return
         while not self.queue_out.empty():
@@ -112,4 +135,3 @@ class SerialHandler:
             if char in '\t':
                 char = ','
             self.buffer += char
-
