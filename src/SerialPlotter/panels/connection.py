@@ -49,18 +49,30 @@ class Model(mvc.Model):
 class Controller(mvc.Controller):
     def __init__(self, master, interface):
         self.interface = interface
+        self.model = Model()
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
         self.view.bind_button('Out', self.send_command)
 
+        self.model.load()
+        self.update_view()
+
     def on_close(self):
-        pass
+        self.update_model()
+        self.model.save()
 
     def update_model(self):
-        pass
+        settings = self.model.settings
+        settings['command'] = self.view.entries['Out'].get()
+        settings['show'] = self.view.radio_buttons['Show'].get()
+        settings['keep'] = self.view.radio_buttons['Remember'].get()
 
     def update_view(self):
-        pass
+        settings = self.model.settings
+        self.view.entries['Out'].delete(0, tk.END)
+        self.view.entries['Out'].insert(0, settings['command'])
+        self.view.radio_buttons['Show'].set(settings['show'])
+        self.view.radio_buttons['Remember'].set(settings['keep'])
 
     def send_command(self):
         entry = self.view.entries['Out']
