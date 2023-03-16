@@ -13,7 +13,7 @@ from .interfacebuilder import make_base_frame, make_spaced_label, make_spacer, \
 from .threadbuilder import build_thread_interface, build_thread_graph, build_thread_csv
 
 
-class ApplicationView(tk.Frame):
+class ApplicationView(mvc.View):
     def __init__(self, master):
         super().__init__(master)
         self.notebook_tabs: Dict[str, tk.Frame] = {}
@@ -37,10 +37,12 @@ class ApplicationView(tk.Frame):
         return frame
 
 
-class ApplicationController:
-    def __init__(self, master, interface):
+class ApplicationController(mvc.Controller):
+    def __init__(self, master: tk.Tk, interface):
         self.view = ApplicationView(master)
         self.view.pack(fill='both', expand=True)
+        self.master = master
+        self.interface = interface
 
         # Gather the frames of the notebook tabs
         tab_connection = self.view.notebook_tabs['Connection']
@@ -57,6 +59,20 @@ class ApplicationController:
         # Fill the tabs with the content
         panel_graph_control(tab_graph_settings, interface)
         panel_graph_view(tab_graph_display, interface)
+
+    def on_close(self):
+        self.device_controller.on_close()
+        self.connection_controller.on_close()
+        self.recorder_controller.on_close()
+        self.graph_filter_controller.on_close()
+        self.interface.import_settings()
+        self.master.after(100, self.master.destroy)
+
+    def update_model(self):
+        pass
+
+    def update_view(self):
+        pass
 
     def todo(self):
         pass
@@ -153,7 +169,7 @@ class GraphFilterPanelModel(mvc.Model):
             self.filter_data = settings['filters']
 
 
-class GraphFilterPanelController:
+class GraphFilterPanelController(mvc.Controller):
     def __init__(self, master, interface):
         self.interface = interface
         self.model = GraphFilterPanelModel()
@@ -182,6 +198,10 @@ class GraphFilterPanelController:
     def command_restore(self):
         self.model.load()
         self.update_view()
+
+    def on_close(self):
+        self.update_model()
+        self.model.save()
 
     def update_model(self):
         frame = self.view.filter
@@ -257,7 +277,7 @@ class DevicePanelModel:
         pass
 
 
-class DevicePanelController:
+class DevicePanelController(mvc.Controller):
     def __init__(self, master, interface):
         self.interface = interface
         self.view = DevicePanelView(master)
@@ -266,6 +286,15 @@ class DevicePanelController:
         self.view.bind_button('Disconnect', self.disconnect_command)
         self.view.bind_button('Reconnect', self.reconnect_command)
         self.view.bind_button('Refresh', self.refresh_command)
+
+    def on_close(self):
+        pass
+
+    def update_model(self):
+        pass
+
+    def update_view(self):
+        pass
 
     def connect_command(self):
         # Read the selected device name from the combobox
@@ -380,12 +409,21 @@ class ConnectionPanelView(mvc.View):
         self.create_text_field('In')
 
 
-class ConnectionPanelController:
+class ConnectionPanelController(mvc.Controller):
     def __init__(self, master, interface):
         self.interface = interface
         self.view = ConnectionPanelView(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
         self.view.bind_button('Out', self.send_command)
+
+    def on_close(self):
+        pass
+
+    def update_model(self):
+        pass
+
+    def update_view(self):
+        pass
 
     def send_command(self):
         entry = self.view.entries['Out']
@@ -449,7 +487,7 @@ class RecorderPanelModel(mvc.Model):
             self.recorder_settings = settings['recorder']
 
 
-class RecorderPanelController:
+class RecorderPanelController(mvc.Controller):
     def __init__(self, master, interface):
         self.interface = interface
         self.model = RecorderPanelModel()
@@ -470,9 +508,13 @@ class RecorderPanelController:
         interface.graph_data['auto csv'] = Queue()
         make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
 
+    def on_close(self):
+        self.update_model()
+        self.model.save()
+
     def update_model(self):
         settings = self.model.recorder_settings
-        settings['file name'] = self.view.entries['Save'].get()
+        settings['file_name'] = self.view.entries['Save'].get()
         settings['auto_save'] = self.view.check_buttons['Auto save'].get()
         settings['file_append'] = self.view.check_buttons['File append'].get()
         settings['file_overwrite'] = self.view.check_buttons['File overwrite'].get()
@@ -526,7 +568,7 @@ def __main__():
     interface = InterfaceVariables()
 
     controller = ApplicationController(root, interface)
-    controller.todo()
+    root.protocol('WM_DELETE_WINDOW', controller.on_close)
 
     # To be done: Change interface to controller
     interface.import_settings()
