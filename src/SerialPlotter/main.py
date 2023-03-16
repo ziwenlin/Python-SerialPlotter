@@ -7,9 +7,7 @@ from serial.tools.list_ports import comports
 
 from . import mvc
 from .filehandler import csv_save_append, csv_save_create, json_load, json_save
-from .interfacebuilder import make_base_frame, make_spaced_label, make_spacer, \
-    InterfaceVariables, make_graph, make_thread, make_check_button, \
-    make_named_spinbox
+from .interfacebuilder import make_base_frame, InterfaceVariables, make_graph, make_thread
 from .threadbuilder import build_thread_graph, build_thread_csv
 
 
@@ -57,7 +55,6 @@ class ApplicationController(mvc.Controller):
         self.graph_filter_controller = GraphFilterPanelController(tab_graph_display, interface)
 
         # Fill the tabs with the content
-        panel_graph_control(tab_graph_settings, interface)
         panel_graph_view(tab_graph_display, interface)
 
     def on_close(self):
@@ -120,21 +117,6 @@ class BoxedEntriesFrame(tk.Frame):
 
         self.entries.append(frame)
         return frame
-
-
-def panel_graph_control(base, interface: InterfaceVariables):
-    frame = make_base_frame(base)
-    make_spacer(frame, 2)
-    make_spaced_label(frame, 'Configurator')
-    make_check_button(frame, interface.tk_vars, 'Lock axis')
-    make_check_button(frame, interface.tk_vars, 'Copy axis')
-
-    make_spaced_label(frame, 'X-axis')
-    interface.tk_vars['x min'] = make_named_spinbox(frame, 'Min')
-    interface.tk_vars['x max'] = make_named_spinbox(frame, 'Max')
-    make_spaced_label(frame, 'Y-axis')
-    interface.tk_vars['y min'] = make_named_spinbox(frame, 'Min')
-    interface.tk_vars['y max'] = make_named_spinbox(frame, 'Max')
 
 
 class GraphFilterPanelView(mvc.View):
