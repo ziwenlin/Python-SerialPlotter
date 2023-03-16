@@ -6,12 +6,6 @@ from .program import SerialHandler
 UPDATE_INTERVAL = 500
 
 
-class ThreadInterface:
-    serial_controller: SerialHandler
-
-    def __init__(self):
-        self.serial_controller = SerialHandler()
-
 class ThreadManager:
     running: threading.Event
     threads: List[threading.Thread]
@@ -45,3 +39,10 @@ class ThreadManager:
                 break
             tries += 1
         print('Active threads:', threading.active_count())
+
+
+class ThreadInterface:
+    serial_controller: SerialHandler
+
+    def __init__(self):
+        self.serial_controller = SerialHandler()
