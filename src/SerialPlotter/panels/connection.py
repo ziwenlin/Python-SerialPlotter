@@ -13,10 +13,10 @@ class View(mvc.View):
         # Entry for send command
         # Button which sends the command
         self.create_label_header('Send command to device:')
+        self.create_radio_buttons('Remember', [
+            'Remove after send', 'Keep after send',
+            'Keep and send when connecting'])
         self.create_entry_with_button('Out', 'Send')
-
-        # Header label connection settings
-        self.create_label_header('Connection data settings:')
 
         # Header label incoming data
         self.create_label_header('Incoming data:')
@@ -64,6 +64,8 @@ class Controller(mvc.Controller):
 
     def send_command(self):
         entry = self.view.entries['Out']
+        state = self.view.radio_buttons['Remember'].get()
         data = entry.get()
-        entry.delete(0, tk.END)
+        if state == 0:
+            entry.delete(0, tk.END)
         self.interface.arduino.queue_out.put(data)
