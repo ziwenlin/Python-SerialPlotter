@@ -77,12 +77,7 @@ def __main__():
     controller = ApplicationController(root, interface)
     root.protocol('WM_DELETE_WINDOW', controller.on_close)
 
-    # To be done: Change interface to controller
-    interface.import_settings()
-    interface.start_threads()
     root.mainloop()
-    interface.stop_threads()
-    interface.export_settings()
 
 
 if __name__ == '__main__':
