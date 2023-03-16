@@ -39,6 +39,8 @@ class InterfaceVariables:
             self.graph_data[key] = data
         if 'filters' in settings:
             self.extra_settings['filters'] = settings['filters']
+        if 'recorder' in settings:
+            self.extra_settings['recorder'] = settings['recorder']
 
     def export_settings(self):
         version = '1.0'

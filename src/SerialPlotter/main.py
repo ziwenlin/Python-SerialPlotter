@@ -431,7 +431,12 @@ class RecorderPanelModel(mvc.Model):
     recorder_settings: Dict[str, any]
 
     def __init__(self):
-        self.recorder_settings = {}
+        self.recorder_settings = {
+            'file_name': '',
+            'auto_save': 0,
+            'file_append': 0,
+            'file_overwrite': 0,
+        }
 
     def save(self):
         settings = json_load()
@@ -447,6 +452,7 @@ class RecorderPanelModel(mvc.Model):
 class RecorderPanelController:
     def __init__(self, master, interface):
         self.interface = interface
+        self.model = RecorderPanelModel()
         self.view = RecorderPanelView(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
 
@@ -454,12 +460,30 @@ class RecorderPanelController:
         self.view.bind_button('Start', self.start_command)
         self.view.bind_button('Pause', self.pause_command)
 
+        self.model.load()
+        self.update_view()
+
         # IDK what these would do, but it should not be in view
         self.trigger = trigger = {'start': False, 'name': self.view.entries['Save'].get()}
         interface.tk_vars['Auto save'] = self.view.check_buttons['Auto save']
         interface.graph_data['record csv'] = []
         interface.graph_data['auto csv'] = Queue()
         make_thread(build_thread_csv(trigger, interface), interface, 'Csv manager')
+
+    def update_model(self):
+        settings = self.model.recorder_settings
+        settings['file name'] = self.view.entries['Save'].get()
+        settings['auto_save'] = self.view.check_buttons['Auto save'].get()
+        settings['file_append'] = self.view.check_buttons['File append'].get()
+        settings['file_overwrite'] = self.view.check_buttons['File overwrite'].get()
+
+    def update_view(self):
+        settings = self.model.recorder_settings
+        self.view.entries['Save'].delete(0, tk.END)
+        self.view.entries['Save'].insert(0, settings['file_name'])
+        self.view.check_buttons['Auto save'].set(settings['auto_save'])
+        self.view.check_buttons['File append'].set(settings['file_append'])
+        self.view.check_buttons['File overwrite'].set(settings['file_overwrite'])
 
     def save_command(self):
         record_data = self.interface.graph_data['record csv']
