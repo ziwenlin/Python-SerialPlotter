@@ -1,7 +1,7 @@
 import threading
 from typing import List
 
-from .program import SerialHandler
+from .program import SerialHandler, SerialThread
 
 UPDATE_INTERVAL = 500
 
@@ -47,7 +47,12 @@ class ThreadManager:
 
 
 class ThreadInterface:
+    thread_manager: ThreadManager
     serial_controller: SerialHandler
 
     def __init__(self):
+        self.thread_manager = ThreadManager()
         self.serial_controller = SerialHandler()
+        self.thread_manager.add_thread(SerialThread(
+            self.thread_manager.running,
+            self.serial_controller))
