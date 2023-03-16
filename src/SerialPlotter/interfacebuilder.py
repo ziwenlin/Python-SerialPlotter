@@ -37,6 +37,8 @@ class InterfaceVariables:
             # if key not in self.graph_data:
             #     continue
             self.graph_data[key] = data
+        if 'filters' in settings:
+            self.extra_settings['filters'] = settings['filters']
 
     def export_settings(self):
         version = '1.0'

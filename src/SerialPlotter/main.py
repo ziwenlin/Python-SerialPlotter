@@ -6,7 +6,7 @@ from typing import Dict, List
 from serial.tools.list_ports import comports
 
 from . import mvc
-from .filehandler import csv_save_append, csv_save_create
+from .filehandler import csv_save_append, csv_save_create, json_load, json_save
 from .interfacebuilder import make_base_frame, make_spaced_label, make_spacer, \
     InterfaceVariables, make_graph, make_thread, make_check_button, \
     make_named_spinbox
@@ -136,17 +136,21 @@ class GraphFilterPanelView(mvc.View):
         self.create_button('Add', 'Add filter').pack(side='bottom')
 
 
-class GraphFilterPanelModel:
+class GraphFilterPanelModel(mvc.Model):
     filter_data: List[Dict[str, any]]
 
     def __init__(self):
         self.filter_data = []
 
     def save(self):
-        pass
+        settings = json_load()
+        settings['filters'] = self.filter_data
+        json_save(settings)
 
     def load(self):
-        pass
+        settings = json_load()
+        if 'filters' in settings:
+            self.filter_data = settings['filters']
 
 
 class GraphFilterPanelController:
@@ -172,8 +176,11 @@ class GraphFilterPanelController:
 
     def command_save(self):
         self.update_model()
+        self.model.save()
+        self.interface.import_settings()
 
     def command_restore(self):
+        self.model.load()
         self.update_view()
 
     def update_model(self):
@@ -182,8 +189,8 @@ class GraphFilterPanelController:
         for entry in frame.entries:
             state, text = entry.get_values()
             self.model.filter_data.append({
-                'State': state,
-                'Name': text,
+                'state': state,
+                'name': text,
             })
 
     def update_view(self):
@@ -194,7 +201,7 @@ class GraphFilterPanelController:
         for _ in range(amount):
             frame.create_entry()
         for entry, values in zip(frame.entries, self.model.filter_data):
-            entry.set_values(values['State'], values['Name'])
+            entry.set_values(values['state'], values['name'])
 
 
 def panel_graph_view(base, interface: InterfaceVariables):
