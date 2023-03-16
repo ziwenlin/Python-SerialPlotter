@@ -23,6 +23,7 @@ class ApplicationView(mvc.View):
         self.create_notebook_tab('Settings')
 
     def create_notebook_tab(self, name: str):
+        # Adds a tab to the notebook
         frame = tk.Frame(self.notebook)
         frame.configure(pady=5, padx=5)
         frame.pack(fill='both', expand=True, side='left')
@@ -52,6 +53,7 @@ class ApplicationController(mvc.Controller):
         self.graph_display_controller = graph.Controller(tab_graph_display, interface)
 
     def on_close(self):
+        # Called when the user wants to close the application
         self.device_controller.on_close()
         self.connection_controller.on_close()
         self.recorder_controller.on_close()
@@ -69,11 +71,16 @@ class ApplicationController(mvc.Controller):
 
 
 def __main__():
+    # Root of tkinter
     root = tk.Tk()
-    # To be done: This should be model
+
+    # Creating interface between threads
     interface = InterfaceVariables()
 
+    # Creating the application
     controller = ApplicationController(root, interface)
+
+    # Protocol when the user want to close the window
     root.protocol('WM_DELETE_WINDOW', controller.on_close)
 
     root.mainloop()
