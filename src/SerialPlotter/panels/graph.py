@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 
 from .. import mvc
-from ..thread import ThreadInterface
+from ..manager import ThreadInterface
 
 
 class GraphFrame(tk.Frame):

@@ -3,7 +3,7 @@ from typing import List
 from serial.tools.list_ports import comports
 
 from .. import mvc
-from ..thread import ThreadInterface
+from ..manager import ThreadInterface
 
 
 class View(mvc.View):

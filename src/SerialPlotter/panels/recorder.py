@@ -4,7 +4,7 @@ from typing import Dict
 
 from .. import mvc
 from ..files import json_load, json_save, csv_save_append, csv_save_create
-from ..thread import ThreadInterface
+from ..manager import ThreadInterface
 
 
 class View(mvc.View):

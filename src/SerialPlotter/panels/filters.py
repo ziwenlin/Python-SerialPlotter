@@ -3,7 +3,7 @@ from typing import List, Dict
 
 from .. import mvc
 from ..files import json_load, json_save
-from ..thread import ThreadInterface
+from ..manager import ThreadInterface
 
 
 class BoxedEntriesFrame(tk.Frame):

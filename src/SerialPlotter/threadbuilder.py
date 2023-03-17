@@ -1,7 +1,7 @@
 from queue import Queue
 
 from .files import csv_save_append, csv_save_auto, json_save, json_load
-from .thread import ThreadInterface
+from .manager import ThreadInterface
 
 
 # def build_thread_settings(interface: InterfaceVariables):

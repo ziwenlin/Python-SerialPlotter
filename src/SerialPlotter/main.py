@@ -4,7 +4,7 @@ from typing import Dict
 
 from . import mvc
 from .panels import communication, connection, recorder, filters, graph
-from .thread import ThreadInterface
+from .manager import ThreadInterface
 
 
 class ApplicationView(mvc.View):
