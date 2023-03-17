@@ -2,7 +2,6 @@ import tkinter as tk
 from typing import List, Dict
 
 from .. import mvc
-from ..files import json_load, json_save
 from ..manager import TaskInterface
 
 
@@ -69,17 +68,19 @@ class Model(mvc.Model):
     filter_data: List[Dict[str, any]]
 
     def __init__(self):
+        super().__init__('filters')
         self.filter_data = []
+        self.settings.update({
+            'filters': self.filter_data,
+        })
 
     def save(self):
-        settings = json_load()
-        settings['filters'] = self.filter_data
-        json_save(settings)
+        self.settings['filters'] = self.filter_data
+        super(Model, self).save()
 
     def load(self):
-        settings = json_load()
-        if 'filters' in settings:
-            self.filter_data = settings['filters']
+        super(Model, self).load()
+        self.filter_data = self.settings['filters']
 
 
 class Controller(mvc.Controller):
