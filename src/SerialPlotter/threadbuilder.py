@@ -1,7 +1,7 @@
 from queue import Queue
 
 from .files import csv_save_append, csv_save_auto, json_save, json_load
-from .manager import ThreadInterface
+from .manager import TaskInterface
 
 
 # def build_thread_settings(interface: InterfaceVariables):
@@ -27,7 +27,7 @@ from .manager import ThreadInterface
 #             interface.graph_data[key] = data
 
 
-def build_thread_graph(graph, interface: ThreadInterface):
+def build_thread_graph(graph, interface: TaskInterface):
     from time import sleep
     csv_queue: Queue = interface.graph_data['auto csv']
     filter_state: dict = interface.graph_data['state']
@@ -68,7 +68,7 @@ def build_thread_graph(graph, interface: ThreadInterface):
     return serial_graph
 
 
-def build_thread_csv(trigger: dict, interface: ThreadInterface):
+def build_thread_csv(trigger: dict, interface: TaskInterface):
     from time import sleep
     auto_queue: Queue = interface.graph_data['auto csv']
     record_data: list = interface.graph_data['record csv']

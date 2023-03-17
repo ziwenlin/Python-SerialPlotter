@@ -3,7 +3,7 @@ from typing import List
 from serial.tools.list_ports import comports
 
 from .. import mvc
-from ..manager import ThreadInterface
+from ..manager import TaskInterface
 
 
 class View(mvc.View):
@@ -44,7 +44,7 @@ class Model:
 
 
 class Controller(mvc.Controller):
-    def __init__(self, master, interface: ThreadInterface):
+    def __init__(self, master, interface: TaskInterface):
         self.interface = interface
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)

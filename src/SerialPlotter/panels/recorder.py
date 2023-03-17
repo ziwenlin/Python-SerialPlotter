@@ -4,7 +4,7 @@ from typing import Dict
 
 from .. import mvc
 from ..files import json_load, json_save, csv_save_append, csv_save_create
-from ..manager import ThreadInterface
+from ..manager import TaskInterface
 
 
 class View(mvc.View):
@@ -63,7 +63,7 @@ class Model(mvc.Model):
 
 
 class Controller(mvc.Controller):
-    def __init__(self, master, interface: ThreadInterface):
+    def __init__(self, master, interface: TaskInterface):
         self.interface = interface
         self.model = Model()
         self.view = View(master)

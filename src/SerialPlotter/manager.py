@@ -6,7 +6,7 @@ from .program import SerialHandler, SerialThread
 UPDATE_INTERVAL = 500
 
 
-class ThreadManager:
+class TaskManager:
     running: threading.Event
     threads: List[threading.Thread]
 
@@ -46,12 +46,12 @@ class ThreadManager:
         print('Active threads:', threading.active_count())
 
 
-class ThreadInterface:
-    thread_manager: ThreadManager
+class TaskInterface:
+    thread_manager: TaskManager
     serial_controller: SerialHandler
 
     def __init__(self):
-        self.thread_manager = ThreadManager()
+        self.thread_manager = TaskManager()
         self.serial_controller = SerialHandler()
         self.thread_manager.add_thread(SerialThread(
             self.thread_manager.running,

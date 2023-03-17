@@ -4,7 +4,7 @@ from typing import Dict
 
 from . import mvc
 from .panels import communication, connection, recorder, filters, graph
-from .manager import ThreadInterface
+from .manager import TaskInterface
 
 
 class ApplicationView(mvc.View):
@@ -44,7 +44,7 @@ class ApplicationModel(mvc.Model):
 
 
 class ApplicationController(mvc.Controller):
-    def __init__(self, master: tk.Tk, interface: ThreadInterface):
+    def __init__(self, master: tk.Tk, interface: TaskInterface):
         self.model = ApplicationModel()
         self.view = ApplicationView(master)
         self.view.pack(fill='both', expand=True)
@@ -91,7 +91,7 @@ def __main__():
     root = tk.Tk()
 
     # Creating interface between threads
-    interface = ThreadInterface()
+    interface = TaskInterface()
 
     # Creating the application
     controller = ApplicationController(root, interface)
