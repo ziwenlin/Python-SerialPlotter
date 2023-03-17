@@ -3,7 +3,7 @@ from tkinter import ttk as ttk
 from typing import Dict
 
 from . import mvc
-from .panels import connection, device, recorder, filters, graph
+from .panels import communication, device, recorder, filters, graph
 from .thread import ThreadInterface
 
 
@@ -59,7 +59,7 @@ class ApplicationController(mvc.Controller):
 
         # Create sub controllers and link it to the notebook tabs
         self.device_controller = device.Controller(tab_connection, interface)
-        self.connection_controller = connection.Controller(tab_connection, interface)
+        self.communication_controller = communication.Controller(tab_connection, interface)
         self.recorder_controller = recorder.Controller(tab_recorder, interface)
         self.filter_controller = filters.Controller(tab_graph_display, interface)
         self.graph_controller = graph.Controller(tab_graph_display, interface)
@@ -71,7 +71,7 @@ class ApplicationController(mvc.Controller):
         self.interface.thread_manager.stop_threads()
         # Run the close procedure in the controllers
         self.device_controller.on_close()
-        self.connection_controller.on_close()
+        self.communication_controller.on_close()
         self.recorder_controller.on_close()
         self.filter_controller.on_close()
         self.graph_controller.on_close()
