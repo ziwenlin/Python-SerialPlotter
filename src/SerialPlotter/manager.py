@@ -1,5 +1,5 @@
 import threading
-from typing import List
+from typing import List, Dict
 
 from .program import SerialHandler, SerialThread
 
@@ -49,6 +49,7 @@ class TaskManager:
 class TaskInterface:
     tasks_manager: TaskManager
     serial_controller: SerialHandler
+    application_settings: Dict[str, any]
 
     def __init__(self):
         self.tasks_manager = TaskManager()
@@ -56,3 +57,4 @@ class TaskInterface:
         self.tasks_manager.add(SerialThread(
             self.tasks_manager.running,
             self.serial_controller))
+        self.application_settings = {}

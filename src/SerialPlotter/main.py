@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk as ttk
 from typing import Dict
 
-from . import mvc
+from . import mvc, files
 from .panels import communication, connection, recorder, filters, graph
 from .manager import TaskInterface
 
@@ -33,14 +33,18 @@ class ApplicationView(mvc.View):
 
 
 class ApplicationModel(mvc.Model):
+    settings: Dict[str, any]
+
     def __init__(self):
-        pass
+        self.settings = {
+            'version': '2.0'
+        }
 
     def save(self):
-        pass
+        files.json_save(self.settings)
 
     def load(self):
-        pass
+        self.settings.update(files.json_load())
 
 
 class ApplicationController(mvc.Controller):
@@ -50,6 +54,7 @@ class ApplicationController(mvc.Controller):
         self.view.pack(fill='both', expand=True)
         self.master = master
         self.interface = interface
+        interface.application_settings = self.model.settings
 
         # Gather the frames of the notebook tabs
         tab_connection = self.view.notebook_tabs['Connection']
