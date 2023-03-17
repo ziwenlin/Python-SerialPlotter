@@ -1,9 +1,7 @@
 import tkinter as tk
-from queue import Queue
-from typing import Dict
 
 from .. import mvc
-from ..files import json_load, json_save, csv_save_append, csv_save_create
+from ..files import csv_save_append, csv_save_create
 from ..manager import TaskInterface
 
 
@@ -41,25 +39,14 @@ class View(mvc.View):
 
 
 class Model(mvc.Model):
-    recorder_settings: Dict[str, any]
-
     def __init__(self):
-        self.recorder_settings = {
+        super().__init__('recorder')
+        self.settings.update({
             'file_name': '',
             'auto_save': 0,
             'file_append': 0,
             'file_overwrite': 0,
-        }
-
-    def save(self):
-        settings = json_load()
-        settings['recorder'] = self.recorder_settings
-        json_save(settings)
-
-    def load(self):
-        settings = json_load()
-        if 'recorder' in settings:
-            self.recorder_settings = settings['recorder']
+        })
 
 
 class Controller(mvc.Controller):
@@ -81,14 +68,14 @@ class Controller(mvc.Controller):
         self.model.save()
 
     def update_model(self):
-        settings = self.model.recorder_settings
+        settings = self.model.settings
         settings['file_name'] = self.view.entries['Save'].get()
         settings['auto_save'] = self.view.check_buttons['Auto save'].get()
         settings['file_append'] = self.view.check_buttons['File append'].get()
         settings['file_overwrite'] = self.view.check_buttons['File overwrite'].get()
 
     def update_view(self):
-        settings = self.model.recorder_settings
+        settings = self.model.settings
         self.view.entries['Save'].delete(0, tk.END)
         self.view.entries['Save'].insert(0, settings['file_name'])
         self.view.check_buttons['Auto save'].set(settings['auto_save'])
