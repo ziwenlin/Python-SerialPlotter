@@ -57,6 +57,7 @@ class Controller(mvc.Controller):
 
         self.model.load()
         self.update_view()
+        self.view.after(1000, self.display_incoming_text)
 
     def on_close(self):
         self.update_model()
@@ -75,10 +76,21 @@ class Controller(mvc.Controller):
         self.view.radio_buttons['Show'].set(settings['show'])
         self.view.radio_buttons['Remember'].set(settings['keep'])
 
+    def display_incoming_text(self):
+        queue = self.interface.serial_controller.queue_in
+        state = self.view.radio_buttons['Show'].get()
+        while not queue.empty():
+            # Wrong queue, need to change it in the future
+            text = str(queue.get()) + '\n'
+            if state == 0: continue
+            self.view.text_field['In'].insert('1.0', text)
+        self.view.after(500, self.display_incoming_text)
+
     def command_send(self):
         entry = self.view.entries['Out']
         state = self.view.radio_buttons['Remember'].get()
         data = entry.get()
         if state == 0:
             entry.delete(0, tk.END)
+        self.view.text_field['In'].insert('1.0', 'Command send: ' + data + '\n')
         self.interface.serial_controller.queue_out.put(data)
