@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk as ttk
 from typing import Dict
 
+from . import files
+
 
 class View(tk.Frame):
     def __init__(self, master):
@@ -170,13 +172,26 @@ def _scrolling_event(tk_var: tk.StringVar, multiplier: float = 1):
 
 
 class Model:
-    @abc.abstractmethod
-    def save(self):
-        pass
+    settings: Dict[str, any]
 
-    @abc.abstractmethod
+    def __init__(self, name):
+        self.__name: str = name
+        self.settings = {}
+
+    def save(self):
+        if self.__name is None:
+            return
+        if len(self.settings) == 0:
+            return
+        settings = files.json_load()
+        settings[self.__name] = self.settings
+        files.json_save(settings)
+
     def load(self):
-        pass
+        settings = files.json_load()
+        if self.__name in settings:
+            setting = settings[self.__name]
+            self.settings.update(setting)
 
 
 class Controller:
