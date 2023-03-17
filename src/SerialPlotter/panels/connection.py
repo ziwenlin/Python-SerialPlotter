@@ -2,7 +2,7 @@ import tkinter as tk
 from typing import Dict
 
 from .. import mvc
-from ..filehandler import json_load, json_save
+from ..files import json_load, json_save
 from ..thread import ThreadInterface
 
 

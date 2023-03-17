@@ -3,7 +3,7 @@ from queue import Queue
 from typing import Dict
 
 from .. import mvc
-from ..filehandler import json_load, json_save, csv_save_append, csv_save_create
+from ..files import json_load, json_save, csv_save_append, csv_save_create
 from ..thread import ThreadInterface
 
 

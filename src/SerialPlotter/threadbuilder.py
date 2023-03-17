@@ -1,6 +1,6 @@
 from queue import Queue
 
-from .filehandler import csv_save_append, csv_save_auto, json_save, json_load
+from .files import csv_save_append, csv_save_auto, json_save, json_load
 from .thread import ThreadInterface
 
 
