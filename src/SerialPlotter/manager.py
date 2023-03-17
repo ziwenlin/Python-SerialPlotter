@@ -14,22 +14,22 @@ class TaskManager:
         self.running = threading.Event()
         self.threads = []
 
-    def add_thread(self, thread: threading.Thread):
+    def add(self, thread: threading.Thread):
         if self.running.is_set():
             thread.start()
         self.threads.append(thread)
 
-    def start_threads(self):
+    def start(self):
         self.running.is_set()
         for thread in self.threads:
             thread.start()
 
-    def stop_threads(self):
+    def stop(self):
         self.running.clear()
         for thread in self.threads:
             thread.join(1)
 
-    def exit_threads(self, max_tries=10):
+    def exit(self, max_tries=10):
         tries = 1
         while threading.active_count() > 1:
             for thread in self.threads:
@@ -47,12 +47,12 @@ class TaskManager:
 
 
 class TaskInterface:
-    thread_manager: TaskManager
+    tasks_manager: TaskManager
     serial_controller: SerialHandler
 
     def __init__(self):
-        self.thread_manager = TaskManager()
+        self.tasks_manager = TaskManager()
         self.serial_controller = SerialHandler()
-        self.thread_manager.add_thread(SerialThread(
-            self.thread_manager.running,
+        self.tasks_manager.add(SerialThread(
+            self.tasks_manager.running,
             self.serial_controller))

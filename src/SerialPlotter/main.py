@@ -68,7 +68,7 @@ class ApplicationController(mvc.Controller):
         # Called when the user wants to close the application
         self.master.after(500, self.master.destroy)
         self.connection_controller.command_disconnect()
-        self.interface.thread_manager.stop_threads()
+        self.interface.tasks_manager.stop()
         # Run the close procedure in the controllers
         self.connection_controller.on_close()
         self.communication_controller.on_close()
@@ -95,14 +95,14 @@ def __main__():
 
     # Creating the application
     controller = ApplicationController(root, interface)
-    interface.thread_manager.start_threads()
+    interface.tasks_manager.start()
 
     # Protocol when the user want to close the window
     root.protocol('WM_DELETE_WINDOW', controller.on_close)
     root.mainloop()
 
     # Try to wait for threads to finish else force exit
-    interface.thread_manager.exit_threads(3)
+    interface.tasks_manager.exit(3)
 
 
 if __name__ == '__main__':
