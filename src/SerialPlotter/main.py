@@ -3,8 +3,8 @@ from tkinter import ttk as ttk
 from typing import Dict
 
 from . import mvc, files
-from .panels import communication, connection, recorder, filters, graph
 from .manager import TaskInterface
+from .panels import communication, connection, recorder, filters, graph
 
 
 class ApplicationView(mvc.View):
@@ -33,19 +33,22 @@ class ApplicationView(mvc.View):
 
 
 class ApplicationModel(mvc.Model):
-    settings: Dict[str, any]
 
     def __init__(self):
-        self.settings = {
-            'version': '2.0'
-        }
+        super().__init__(None)
+        self.settings.update({
+            'version': '2.0',
+        })
 
     def save(self):
         files.json_save(self.settings)
 
     def load(self):
-        self.settings.update(files.json_load())
-
+        settings = files.json_load()
+        self.settings.update(settings)
+        self.settings.update({
+            'version': '2.0',
+        })
 
 class ApplicationController(mvc.Controller):
     def __init__(self, master: tk.Tk, interface: TaskInterface):
