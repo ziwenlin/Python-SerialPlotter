@@ -27,24 +27,13 @@ class View(mvc.View):
 
 
 class Model(mvc.Model):
-    settings: Dict[str, any]
-
     def __init__(self):
-        self.settings = {
+        super().__init__('communication')
+        self.settings.update({
             'command': '',
             'show': 0,
             'keep': 0,
-        }
-
-    def save(self):
-        settings = json_load()
-        settings['iostream'] = self.settings
-        json_save(settings)
-
-    def load(self):
-        settings = json_load()
-        if 'iostream' in settings:
-            self.settings = settings['iostream']
+        })
 
 
 class Controller(mvc.Controller):
