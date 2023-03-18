@@ -1,6 +1,6 @@
 import queue
-import threading
 import random
+import threading
 from time import sleep
 
 import serial.tools.list_ports
@@ -19,10 +19,12 @@ def test_print():
 
 
 class SerialThread(threading.Thread):
-    def __init__(self, event, serial_handler):
+    is_running: threading.Event
+
+    def __init__(self, event):
         super().__init__(daemon=False, name='Serial reader thread')
         self.is_running: threading.Event = event
-        self.serial: SerialHandler = serial_handler
+        self.serial: SerialHandler = SerialHandler()
 
     def run(self):
         self.is_running.set()

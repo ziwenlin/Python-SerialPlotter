@@ -53,8 +53,7 @@ class TaskInterface:
 
     def __init__(self):
         self.tasks_manager = TaskManager()
-        self.serial_controller = SerialHandler()
-        self.tasks_manager.add(SerialThread(
-            self.tasks_manager.running,
-            self.serial_controller))
         self.application_settings = {}
+        thread = SerialThread(self.tasks_manager.running)
+        self.serial_controller = thread.serial
+        self.tasks_manager.add(thread)
