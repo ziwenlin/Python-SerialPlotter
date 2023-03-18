@@ -2,6 +2,7 @@ import queue
 import random
 import threading
 from time import sleep
+from typing import List, Dict
 
 import serial.tools.list_ports
 
@@ -19,6 +20,7 @@ def test_print():
 
 
 class SerialThread(threading.Thread):
+    """This is the controller"""
     is_running: threading.Event
 
     def __init__(self, event):
@@ -39,7 +41,35 @@ class SerialThread(threading.Thread):
         self.serial.disconnect()
 
 
+class SerialInterface:
+    """This is the view"""
+    queues: Dict[str, List[queue.Queue]]
+
+    def __init__(self):
+        self.queues = {
+            'in': [],
+            'out': [],
+            'raw': [],
+        }
+
+    def create_queue(self, name: str, max_size=100):
+        if name not in self.queues:
+            return
+        new_queue = queue.Queue(max_size)
+        self.queues[name].append(new_queue)
+        return new_queue
+
+    def queue_item(self, name: str, item):
+        if name not in self.queues:
+            return
+        current_queues = self.queues[name]
+        for q in current_queues:
+            q.put(item, False)
+
+
 class SerialHandler:
+    """This is the model"""
+
     def __init__(self):
         self.serial = serial.Serial()
         self.is_running = threading.Event()
