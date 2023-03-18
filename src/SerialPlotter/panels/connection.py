@@ -11,25 +11,22 @@ class View(mvc.View):
         super().__init__(master)
 
         # Header label available devices
-        self.create_label_header('Available devices:')
-
         # Label which will list selectable devices
         # Controller logic will update this text
+        self.create_label_header('Available devices:')
         self.create_label('Ports', 'Please press refresh').configure(height=4)
         self.create_button('Refresh', 'Refresh')
 
         # Header label device status
-        self.create_label_header('Device status:')
-
         # Label which will list the device status
         # Controller logic will update this text
+        self.create_label_header('Device status:')
         self.create_label('Success', 'Please select a device')
 
         # Header label select device
-        self.create_label_header('Select device:')
-
         # Combobox which list available devices to connect
         # Controller logic will update the list of devices
+        self.create_label_header('Select device:')
         self.create_combobox('Device', 'None')
 
         # Buttons which are controlling the connection
@@ -53,8 +50,11 @@ class Controller(mvc.Controller):
         self.view.bind_button('Reconnect', self.command_reconnect)
         self.view.bind_button('Refresh', self.command_refresh)
 
+        self.queue_in = interface.serial_interface.create_queue('status')
+        self.queue_out = interface.serial_interface.create_queue('command')
+
     def on_close(self):
-        pass
+        self.command_disconnect()
 
     def update_model(self):
         pass
@@ -62,65 +62,37 @@ class Controller(mvc.Controller):
     def update_view(self):
         pass
 
+    def update_display_status(self):
+        status = ''
+        while not self.queue_in.empty():
+            status += self.queue_in.get() + '\n'
+        if status == '':
+            self.view.after(500, self.update_display_status)
+            return
+        self.view.update_label('Success', status)
+
     def command_connect(self):
         # Read the selected device name from the combobox
         device_name = self.view.combo_boxes['Device'].get()
-
-        # Get the serial controller from the ???
         # Attempt connecting to the selected device
-        controller = self.interface.serial_controller
-        success = controller.connect(device_name)
-
-        # Translate success into a status message
-        if success is True:
-            status = 'Successfully connected'
-        elif success is False:
-            status = 'Already connected'
-        else:
-            status = 'Could not connect'
-
+        self.queue_out.put('connect ' + device_name)
+        self.view.after(500, self.update_display_status)
         # Update the connection status label
-        self.view.update_label('Success', status)
+        self.view.update_label('Success', 'Connecting to device...')
 
     def command_disconnect(self):
-        # Get the serial controller from the ???
         # Attempt disconnecting from the current device
-        controller = self.interface.serial_controller
-        success = controller.disconnect()
-
-        # Translate success into a status message
-        if success is True:
-            message = 'Disconnected'
-        elif success is False:
-            message = 'Not connected'
-        else:  # This line should/will never happen
-            message = 'Fatal error'
-
+        self.queue_out.put('disconnect')
+        self.view.after(500, self.update_display_status)
         # Update the connection status label
-        self.view.update_label('Success', message)
+        self.view.update_label('Success', 'Disconnecting from device...')
 
     def command_reconnect(self):
-        # Get the serial controller from the ???
-        # Get the currently connected device name
-        controller = self.interface.serial_controller
-        device_name = controller.serial.name
-
         # Attempt disconnecting and reconnecting to the current device
-        success_disconnect = controller.disconnect()
-        success_connect = controller.connect(device_name)
-
-        # Translate success into a status message
-        if success_disconnect and success_connect is True:
-            message = 'Reconnected'
-        elif success_disconnect and success_connect is False:
-            # To be done: What will happen here?
-            message = 'Connected? To do'
-        else:
-            # To be done: What will happen here?
-            message = 'Not connected? To do'
-
+        self.queue_out.put('reconnect')
+        self.view.after(500, self.update_display_status)
         # Update the connection status label
-        self.view.update_label('Success', message)
+        self.view.update_label('Success', 'Reconnecting to device...')
 
     def command_refresh(self):
         # Gather the ports and extract the device names into a new list
