@@ -27,6 +27,7 @@ class SerialThread(threading.Thread):
         super().__init__(daemon=False, name='Serial reader thread')
         self.is_running: threading.Event = event
         self.serial: SerialHandler = SerialHandler()
+        self.interface: SerialInterface = SerialInterface()
 
     def run(self):
         self.is_running.set()
@@ -47,9 +48,12 @@ class SerialInterface:
 
     def __init__(self):
         self.queues = {
-            'in': [],
-            'out': [],
-            'raw': [],
+            'in': [],  # Messages that are straight from the serial connection
+            'out': [],  # Messages that needs to be sent to the serial connection
+            'data': [],  # Messages converted to usable data
+            'text': [],  # Messages which cannot be converted
+            'status': [],  # Status messages from the controller
+            'command': [],  # Command messages to the controller
         }
 
     def create_queue(self, name: str, max_size=100):
