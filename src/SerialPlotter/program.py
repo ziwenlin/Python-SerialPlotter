@@ -33,12 +33,12 @@ class SerialThread(threading.Thread):
         self.is_running.set()
         while self.is_running.is_set():
             self.update_request_queues()
-            if not self.serial.is_running.is_set():
+            if not self.serial.is_connected.is_set():
                 sleep(0.1)
                 continue
-            while self.serial.available() > 10:
-                self.serial.read()
-            self.serial.write()
+            # while self.serial.available() > 10:
+            #     self.serial.read()
+            # self.serial.write()
             sleep(0.1)
 
         self.serial.disconnect()
@@ -132,21 +132,16 @@ class SerialHandler:
 
     def __init__(self):
         self.serial = serial.Serial()
-        self.is_running = threading.Event()
-        self.queue_in = queue.Queue()
-        self.queue_out = queue.Queue()
-        self.data = []
-        self.buffer = ''
-        self.counter = 0
-        self.debug = False
+        self.is_connected = threading.Event()
+        self.is_debug = False
 
     def available(self):
-        if self.debug:
-            self.counter += 1
-            sleep(0.2)
-            return self.counter
-        if not self.is_running.is_set():
+        if not self.is_connected.is_set():
             return 0
+        if self.is_debug:
+            randint = random.Random().randint(0, 20)
+            sleep(0.2)
+            return randint
         return self.serial.inWaiting()
 
     def connect(self, name):
@@ -158,19 +153,19 @@ class SerialHandler:
         :param name: Name of the device
         :return: True or False
         """
-        if self.is_running.is_set():
+        if self.is_connected.is_set():
             return False
         if name == 'debug':
-            self.debug = True
-            self.is_running.set()
+            self.is_debug = True
+            self.is_connected.set()
             return True
         for p in serial.tools.list_ports.comports():
-            if p.name == name:
+            if p.device == name:
                 break
         else:
             return False
-        self.serial = serial.Serial(name, timeout=0)
-        self.is_running.set()
+        self.serial = serial.Serial(name, timeout=0.1)
+        self.is_connected.set()
         return True
 
     def disconnect(self):
@@ -181,41 +176,31 @@ class SerialHandler:
 
         :return: True or False
         """
-        if not self.is_running.is_set():
+        if not self.is_connected.is_set():
             return False
-        self.is_running.clear()
-        if self.debug:
-            self.debug = False
+        self.is_connected.clear()
+        if self.is_debug:
+            self.is_debug = False
             return True
         self.serial.close()
         return True
 
     def read(self):
-        if self.debug:
-            self.counter = 0
-            self.queue_in.put([random.random() for _ in range(3)])
+        if not self.is_connected.is_set():
             return
-        if not self.is_running.is_set():
-            return
+        if self.is_debug:
+            randint = random.Random().randint(0, 100)
+            return randint
         buffer = self.serial.read(32)
-        try:
-            self.format(buffer)
-            self.reorder()
-        except:
-            self.data = ''
-            self.buffer = ''
+        return buffer
 
-    def write(self):
-        if self.debug:
-            while not self.queue_out.empty():
-                data: str = self.queue_out.get()
-                print(data)
+    def write(self, message: str):
+        if not self.is_connected.is_set():
             return
-        if not self.is_running.is_set():
+        if self.is_debug:
+            print(message)
             return
-        while not self.queue_out.empty():
-            data: str = self.queue_out.get()
-            self.serial.write(data.encode())
+        self.serial.write(message.encode())
 
     def reorder(self):
         if not len(self.data):
