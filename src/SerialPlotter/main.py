@@ -75,7 +75,6 @@ class ApplicationController(mvc.Controller):
     def on_close(self):
         # Called when the user wants to close the application
         self.master.after(500, self.master.destroy)
-        self.connection_controller.command_disconnect()
         self.interface.tasks_manager.stop()
         # Run the close procedure in the controllers
         self.connection_controller.on_close()

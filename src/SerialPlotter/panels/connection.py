@@ -54,7 +54,7 @@ class Controller(mvc.Controller):
         self.queue_out = interface.serial_interface.create_queue('command')
 
     def on_close(self):
-        self.command_disconnect()
+        pass
 
     def update_model(self):
         pass
