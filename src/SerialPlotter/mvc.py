@@ -198,7 +198,14 @@ class Model:
             self.settings.update(setting)
 
     def bind(self, interface: TaskInterface):
-        interface.application_settings[self.__name] = self.settings
+        if self.__name is None:
+            self.settings = interface.application_settings
+            return
+        if self.__name not in interface.application_settings:
+            interface.application_settings[self.__name] = self.settings
+            return
+        interface.application_settings[self.__name].update(self.settings)
+        self.settings = interface.application_settings[self.__name]
 
 
 class Controller:

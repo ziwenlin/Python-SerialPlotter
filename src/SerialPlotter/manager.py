@@ -49,7 +49,7 @@ class TaskManager:
 class TaskInterface:
     tasks_manager: TaskManager
     serial_interface: SerialInterface
-    application_settings: Dict[str, any]
+    application_settings: Dict[str, Dict[str, any]]
 
     def __init__(self):
         self.tasks_manager = TaskManager()
