@@ -32,14 +32,32 @@ class SerialThread(threading.Thread):
     def run(self):
         self.is_running.set()
         while self.is_running.is_set():
+            self.update_request_queues()
             if not self.serial.is_running.is_set():
                 sleep(0.1)
+                continue
             while self.serial.available() > 10:
                 self.serial.read()
             self.serial.write()
             sleep(0.1)
 
         self.serial.disconnect()
+
+    def update_request_queues(self):
+        items: List[str] = self.interface.get_items('command')
+        for command in items:
+            self.process_command(command)
+
+    def process_command(self, command: str):
+        cmd, *arg = command.split(' ')
+        if cmd == 'disconnect':
+            self.serial.disconnect()
+        elif cmd == 'reconnect':
+            name = self.serial.serial.name
+            self.serial.disconnect()
+            self.serial.connect(name)
+        elif cmd == 'connect':
+            self.serial.connect(arg[0])
 
 
 class SerialInterface:
@@ -70,6 +88,17 @@ class SerialInterface:
         for q in current_queues:
             q.put(item, False)
 
+    def get_items(self, name: str):
+        if name not in self.queues:
+            return []
+        items = []
+        queue_list = self.queues[name]
+        for current_queue in queue_list:
+            while not current_queue.empty():
+                item = current_queue.get()
+                items.append(item)
+        return items
+
 
 class SerialHandler:
     """This is the model"""
@@ -94,6 +123,16 @@ class SerialHandler:
         return self.serial.inWaiting()
 
     def connect(self, name):
+        """
+        Connects the application to a serial connection of a device.
+        Returns True when the connection is established and
+        False when the connection is not found or cannot be made.
+
+        :param name: Name of the device
+        :return: True or False
+        """
+        if self.is_running.is_set():
+            return False
         if name == 'debug':
             self.debug = True
             self.is_running.set()
@@ -102,14 +141,19 @@ class SerialHandler:
             if p.name == name:
                 break
         else:
-            return None
-        if self.is_running.is_set():
             return False
         self.serial = serial.Serial(name, timeout=0)
         self.is_running.set()
         return True
 
     def disconnect(self):
+        """
+        Disconnects the application from a serial connection of a device.
+        Returns True when the connection is closed and
+        False by no connection.
+
+        :return: True or False
+        """
         if not self.is_running.is_set():
             return False
         self.is_running.clear()
