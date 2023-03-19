@@ -136,6 +136,11 @@ class SerialHandler:
         self.is_debug = False
 
     def available(self):
+        """
+        Gets the current amount of bytes in the input buffer.
+
+        :return: Amount of bytes
+        """
         if not self.is_connected.is_set():
             return 0
         if self.is_debug:
@@ -186,15 +191,25 @@ class SerialHandler:
         return True
 
     def read(self):
+        """
+        Reads the input buffer and returns its contents
+
+        :return: Bytes in the buffer
+        """
         if not self.is_connected.is_set():
             return
         if self.is_debug:
-            randint = random.Random().randint(0, 100)
-            return randint
+            rand = random.Random()
+            return f'{rand.random()}\t{rand.random()}\t{rand.random()}\n'
         buffer = self.serial.read(32)
-        return buffer
+        return buffer.decode()
 
     def write(self, message: str):
+        """
+        Writes the message to the output buffer.
+
+        :param message: Message to the device
+        """
         if not self.is_connected.is_set():
             return
         if self.is_debug:
