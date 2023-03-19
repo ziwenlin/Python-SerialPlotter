@@ -26,8 +26,11 @@ class View(tk.Frame):
         :param text: Desired text which will be displayed
         """
         label = self.labels.get(name)
-        size = text.count('\n') + 1
-        label.config(height=size, text=text)
+        wrap = label.winfo_width()
+        font = tk.font.nametofont(label['font'])
+        text_height = font.measure(text) // wrap
+        label_height = text.count('\n') + text_height + 1
+        label.config(height=label_height, text=text, wraplength=wrap - 10)
 
     def bind_button(self, name: str, command: ()):
         """
@@ -60,7 +63,7 @@ class View(tk.Frame):
         :param text: Desired text which will be displayed
         """
         label = tk.Label(self, text=text)
-        label.configure(anchor='nw', padx=10, height=1, justify='left')
+        label.configure(anchor='nw', padx=10, height=1, width=3, justify='left')
         label.pack(fill='both', pady=2)
         self.labels[name] = label
         return label

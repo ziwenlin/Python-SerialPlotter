@@ -65,7 +65,7 @@ class Controller(mvc.Controller):
     def update_display_status(self):
         status = ''
         while not self.queue_in.empty():
-            status += self.queue_in.get() + '\n'
+            status += self.queue_in.get() + ' '
         if status == '':
             self.view.after(500, self.update_display_status)
             return
