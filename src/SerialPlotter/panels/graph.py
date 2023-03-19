@@ -1,5 +1,5 @@
 import tkinter as tk
-from typing import List
+from typing import List, Dict
 
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -39,8 +39,24 @@ class View(mvc.View):
         self.graph.pack(fill='both', expand=True)
 
 
+class Model(mvc.Model):
+    data: List[List[float]]
+    filters: List[Dict[str, any]]
+
+    def __init__(self):
+        super().__init__(None)
+        self.filters = []
+        self.data = []
+
+    def bind(self, interface: TaskInterface):
+        super().bind(interface)
+        self.filters = self.settings['filters']['filters']
+
+
 class Controller(mvc.Controller):
     def __init__(self, master, interface: TaskInterface):
         self.interface = interface
+        self.model = Model()
+        self.model.bind(interface)
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
