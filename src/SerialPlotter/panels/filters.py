@@ -58,8 +58,8 @@ class View(mvc.View):
         self.filter = BoxedEntriesFrame(self)
         self.filter.pack(fill='both', pady=5)
 
-        self.create_button('Restore', 'Restore filter').pack(side='bottom')
-        self.create_button('Save', 'Save filter').pack(side='bottom')
+        self.create_button('Restore', 'Restore filters').pack(side='bottom')
+        self.create_button('Save', 'Save filters').pack(side='bottom')
         self.create_button('Remove', 'Remove filter').pack(side='bottom')
         self.create_button('Add', 'Add filter').pack(side='bottom')
 
@@ -108,6 +108,7 @@ class Controller(mvc.Controller):
     def command_save(self):
         self.update_model()
         self.model.save()
+        self.view.winfo_toplevel().event_generate('<<UpdateFilters>>')
 
     def command_restore(self):
         self.model.load()

@@ -73,3 +73,38 @@ class Controller(mvc.Controller):
         self.model.bind(interface)
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
+
+        self.view.winfo_toplevel().bind('<<UpdateFilters>>', self.update_graph_legend, add='+')
+
+    def update_graph_legend(self, event=None):
+        """
+        Updates the legend of the graph.
+        """
+        filter_list = self.model.filters
+        graph = self.view.graph
+
+        # Remove or create lines to match the amount of filters
+        num_filters = len(filter_list)
+        while len(graph.lines) < num_filters:
+            graph.create_line()
+        while len(graph.lines) > num_filters:
+            graph.remove_line()
+
+        # Update the graph labels and visibility
+        for filter, line in zip(filter_list, graph.lines):
+            state = filter['state']
+            name = filter['name']
+            line.set_visible(state == 1)
+            line.set_label(name)
+        # Update the legend of the plot
+        graph.plot.legend(handles=graph.lines)
+        graph.draw()
+
+    def on_close(self):
+        pass
+
+    def update_model(self):
+        pass
+
+    def update_view(self):
+        pass
