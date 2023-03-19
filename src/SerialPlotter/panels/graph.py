@@ -30,6 +30,19 @@ class GraphFrame(tk.Frame):
         self.plot: Axes = self.figure.add_subplot()
         self.lines: List[Line2D] = []
 
+    def create_line(self):
+        line = Line2D([], [], linewidth=1)
+        self.plot.add_line(line)
+        self.lines.append(line)
+
+    def remove_line(self):
+        line = self.lines.pop(0)
+        line.remove()
+
+    def draw(self):
+        self.canvas.draw()
+        self.canvas.flush_events()
+
 
 class View(mvc.View):
     def __init__(self, master):
