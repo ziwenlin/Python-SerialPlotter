@@ -22,7 +22,7 @@ class View(mvc.View):
         # Header label incoming data
         self.create_label_header('Incoming data:')
         self.create_radio_buttons('Show', [
-            'Disable', 'Show all', 'Show messages', 'Show values'])
+            'Disable', 'Show input', 'Show messages', 'Show values'])
         self.create_text_field('In')
 
 
@@ -48,6 +48,8 @@ class Controller(mvc.Controller):
         self.update_view()
         self.queue_in = interface.serial_interface.create_queue('in')
         self.queue_out = interface.serial_interface.create_queue('out')
+        self.queue_data = interface.serial_interface.create_queue('data')
+        self.queue_messages = interface.serial_interface.create_queue('text')
         self.view.after(1000, self.display_incoming_text)
 
     def on_close(self):
@@ -70,10 +72,18 @@ class Controller(mvc.Controller):
     def display_incoming_text(self):
         state = self.view.radio_buttons['Show'].get()
         while not self.queue_in.empty():
-            text = str(self.queue_in.get()) + '\n'
-            if state == 0: continue
+            text = str(self.queue_in.get())
+            if state != 1: continue
             self.view.text_field['In'].insert('1.0', text)
-        self.view.after(500, self.display_incoming_text)
+        while not self.queue_data.empty():
+            text = str(self.queue_data.get()) + '\n'
+            if state != 3: continue
+            self.view.text_field['In'].insert('1.0', text)
+        while not self.queue_messages.empty():
+            text = str(self.queue_messages.get())
+            if state != 2: continue
+            self.view.text_field['In'].insert('1.0', text)
+        self.view.after(200, self.display_incoming_text)
 
     def command_send(self):
         entry = self.view.entries['Out']
