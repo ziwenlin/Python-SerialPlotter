@@ -27,6 +27,7 @@ class View(mvc.View):
         # Combobox which list available devices to connect
         # Controller logic will update the list of devices
         self.create_label_header('Select device:')
+        self.create_check_button('Remember', 'Remember')
         self.create_combobox('Device', 'None')
 
         # Buttons which are controlling the connection
@@ -35,14 +36,19 @@ class View(mvc.View):
         self.create_button('Reconnect', 'Reconnect')
 
 
-class Model:
+class Model(mvc.Model):
     def __init__(self):
-        pass
+        super(Model, self).__init__('connection')
+        self.settings.update({
+            'device': '',
+            'keep': 0,
+        })
 
 
 class Controller(mvc.Controller):
     def __init__(self, master, interface: TaskInterface):
         self.interface = interface
+        self.model = Model()
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
         self.view.bind_button('Connect', self.command_connect)
@@ -50,17 +56,28 @@ class Controller(mvc.Controller):
         self.view.bind_button('Reconnect', self.command_reconnect)
         self.view.bind_button('Refresh', self.command_refresh)
 
+        self.model.load()
+        self.update_view()
         self.queue_in = interface.serial_interface.create_queue('status')
         self.queue_out = interface.serial_interface.create_queue('command')
 
     def on_close(self):
-        pass
+        self.update_model()
+        self.model.save()
 
     def update_model(self):
-        pass
+        settings = self.model.settings
+        settings['device'] = ''
+        settings['keep'] = self.view.check_buttons['Remember'].get()
+        if settings['keep'] == 1:
+            settings['device'] = self.view.combo_boxes['Device'].get()
 
     def update_view(self):
-        pass
+        settings = self.model.settings
+        if settings['keep'] == 1:
+            self.view.combo_boxes['Device'].delete(0, 'end')
+            self.view.combo_boxes['Device'].insert(0, settings['device'])
+        self.view.check_buttons['Remember'].set(settings['keep'])
 
     def update_display_status(self):
         status = ''
