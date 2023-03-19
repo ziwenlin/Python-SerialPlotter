@@ -1,7 +1,7 @@
 import threading
 from typing import List, Dict
 
-from .program import SerialHandler, SerialThread, SerialInterface
+from .program import SerialThread, SerialInterface
 
 UPDATE_INTERVAL = 500
 
@@ -38,7 +38,7 @@ class TaskManager:
                 thread.join(1)
                 if tries < max_tries:
                     continue
-                print('Stuborn thread:', thread.name)
+                print('Stubborn thread:', thread.name)
             if tries > max_tries:
                 print('Force close python')
                 break
@@ -48,8 +48,6 @@ class TaskManager:
 
 class TaskInterface:
     tasks_manager: TaskManager
-    # serial_controller will be deprecated soon
-    serial_controller: SerialHandler
     serial_interface: SerialInterface
     application_settings: Dict[str, any]
 
@@ -58,5 +56,4 @@ class TaskInterface:
         self.application_settings = {}
         thread = SerialThread(self.tasks_manager.running)
         self.serial_interface = thread.interface
-        self.serial_controller = thread.serial
         self.tasks_manager.add(thread)
