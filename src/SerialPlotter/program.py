@@ -106,20 +106,37 @@ class SerialThread(threading.Thread):
         self.is_running: threading.Event = event
         self.serial: SerialHandler = SerialHandler()
         self.interface: SerialInterface = SerialInterface()
+        self.converter: BufferConverter = BufferConverter()
 
     def run(self):
         self.is_running.set()
         while self.is_running.is_set():
             self.update_request_queues()
+            self.update_response_queues()
             if not self.serial.is_connected.is_set():
-                sleep(0.1)
+                sleep(0.5)
                 continue
-            # while self.serial.available() > 10:
-            #     self.serial.read()
-            # self.serial.write()
+            while self.serial.available() > 0:
+                buffer = self.serial.read()
+                self.converter.add(buffer)
+            while self.converter.available() > 0:
+                self.converter.update()
+            for message in self.interface.get_items('out'):
+                self.serial.write(message)
             sleep(0.1)
-
+        # Close serial connection when the main program wants to exit
         self.serial.disconnect()
+
+    def update_response_queues(self):
+        while len(self.converter.messages) > 0:
+            message = self.converter.messages.pop(0)
+            self.interface.queue_item('text', message)
+        while len(self.converter.data) > 0:
+            data = self.converter.data.pop(0)
+            self.interface.queue_item('data', data)
+        while len(self.converter.lines) > 0:
+            line = self.converter.lines.pop(0)
+            self.interface.queue_item('in', line)
 
     def update_request_queues(self):
         items: List[str] = self.interface.get_items('command')
@@ -174,7 +191,7 @@ class SerialInterface:
             'in': [],  # Messages that are straight from the serial connection
             'out': [],  # Messages that needs to be sent to the serial connection
             'data': [],  # Messages converted to usable data
-            'text': [],  # Messages which cannot be converted
+            'text': [],  # Messages which contains text instead of data
             'status': [],  # Status messages from the controller
             'command': [],  # Command messages to the controller
         }
@@ -221,10 +238,10 @@ class SerialHandler:
         """
         if not self.is_connected.is_set():
             return 0
-        if self.is_debug:
-            randint = random.Random().randint(0, 20)
+        if self.is_debug is True:
+            randint = random.Random().random() * 1.5
             sleep(0.2)
-            return randint
+            return int(randint)
         return self.serial.inWaiting()
 
     def connect(self, name):
