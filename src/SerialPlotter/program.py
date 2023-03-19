@@ -51,13 +51,40 @@ class SerialThread(threading.Thread):
     def process_command(self, command: str):
         cmd, *arg = command.split(' ')
         if cmd == 'disconnect':
-            self.serial.disconnect()
+            message = self.process_disconnect()
         elif cmd == 'reconnect':
-            name = self.serial.serial.name
-            self.serial.disconnect()
-            self.serial.connect(name)
+            message = self.process_reconnect()
         elif cmd == 'connect':
-            self.serial.connect(arg[0])
+            message = self.process_connect(arg[0])
+        else:
+            message = f'Unknown command: {command}'
+        self.interface.queue_item('status', message)
+
+    def process_connect(self, name):
+        status = self.serial.connect(name)
+        if status:
+            message = f'Succesfully connected to device {name}'
+        else:
+            message = f'Could not connect to device {name}'
+        return message
+
+    def process_reconnect(self):
+        name = self.serial.serial.name
+        status = self.serial.disconnect()
+        status *= self.serial.connect(name)
+        if status:
+            message = f'Succesfully reconnected'
+        else:
+            message = 'There was no connection'
+        return message
+
+    def process_disconnect(self):
+        status = self.serial.disconnect()
+        if status:
+            message = 'Succesfully disconnected'
+        else:
+            message = 'There was no connection'
+        return message
 
 
 class SerialInterface:
