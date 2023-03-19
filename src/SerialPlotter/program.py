@@ -73,14 +73,12 @@ class BufferConverter:
         self.buffer_text = ''
         return buffer
 
-    def analyse_line(self, line_text):
+    def analyse_line(self, line_text: str):
         count_num = count_sep = count_str = 0
         for char in line_text:
-            if char in '1234567890':
+            if char.isnumeric():
                 count_num += 1
-            if char in 'abcdefghijklmnopqrstuvwxyz':
-                count_str += 1
-            if char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+            if char.isalpha():
                 count_str += 1
             if char in self.delimiter:
                 count_sep += 1
@@ -102,7 +100,7 @@ class SerialThread(threading.Thread):
     is_running: threading.Event
 
     def __init__(self, event):
-        super().__init__(daemon=False, name='Serial reader thread')
+        super().__init__(daemon=False, name='Serial')
         self.is_running: threading.Event = event
         self.serial: SerialHandler = SerialHandler()
         self.interface: SerialInterface = SerialInterface()
@@ -156,9 +154,14 @@ class SerialThread(threading.Thread):
         self.interface.queue_item('status', message)
 
     def process_connect(self, name):
-        status = self.serial.connect(name)
+        try:
+            status = self.serial.connect(name)
+        except serial.SerialException as e:
+            return str(e)
         if status:
-            message = f'Succesfully connected to device {name}'
+            message = f'Successfully connected to device {name}'
+        elif self.serial.is_connected.is_set():
+            message = 'There is already an connection, please disconnect'
         else:
             message = f'Could not connect to device {name}'
         return message
@@ -168,17 +171,17 @@ class SerialThread(threading.Thread):
         status = self.serial.disconnect()
         status *= self.serial.connect(name)
         if status:
-            message = f'Succesfully reconnected'
+            message = f'Successfully reconnected'
         else:
-            message = 'There was no connection'
+            message = 'Reconnecting failed: There was no connection'
         return message
 
     def process_disconnect(self):
         status = self.serial.disconnect()
         if status:
-            message = 'Succesfully disconnected'
+            message = 'Successfully disconnected'
         else:
-            message = 'There was no connection'
+            message = 'Disconnecting failed: There was no connection'
         return message
 
 
