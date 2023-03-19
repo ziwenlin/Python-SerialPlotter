@@ -4,6 +4,7 @@ from tkinter import ttk as ttk
 from typing import Dict
 
 from . import files
+from .manager import TaskInterface
 
 
 class View(tk.Frame):
@@ -195,6 +196,9 @@ class Model:
         if self.__name in settings:
             setting = settings[self.__name]
             self.settings.update(setting)
+
+    def bind(self, interface: TaskInterface):
+        interface.application_settings[self.__name] = self.settings
 
 
 class Controller:

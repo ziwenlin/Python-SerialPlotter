@@ -40,6 +40,7 @@ class Controller(mvc.Controller):
     def __init__(self, master, interface: TaskInterface):
         self.interface = interface
         self.model = Model()
+        self.model.bind(interface)
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
         self.view.bind_button('Out', self.command_send)
