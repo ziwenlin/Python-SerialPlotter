@@ -19,6 +19,84 @@ def test_print():
         test_count = 0
 
 
+class BufferConverter:
+    """This is another model"""
+
+    def __init__(self):
+        self.delimiter = '\t'
+        self.new_line = '\n'
+
+        self.messages = []
+        self.lines = []
+        self.data = []
+
+        self.buffer_lines = []
+        self.buffer_text = ''
+
+    def add(self, buffer: str):
+        for char in buffer:
+            self.buffer_text += char
+            if char in self.new_line:
+                self.collect_buffer()
+
+    def available(self):
+        return len(self.buffer_lines)
+
+    def update(self):
+        if not len(self.buffer_lines) > 0:
+            return False
+        line = self.buffer_lines.pop(0)
+        status = self.analyse_line(line)
+
+        if status == 'data':
+            self.convert_to_data(line)
+        else:
+            self.convert_to_message(line)
+        self.lines.append(line)
+        return True
+
+    def convert_to_message(self, line_text):
+        text = 'Message: ' + line_text
+        self.messages.append(text)
+
+    def convert_to_data(self, line_text):
+        # Convert to normal text without newline
+        text: str = line_text[:-1]
+        text_list = text.split(self.delimiter)
+        value_list = [float(text_value) for text_value in text_list]
+        self.data.append(value_list)
+        return value_list
+
+    def collect_buffer(self):
+        buffer = self.buffer_text
+        self.buffer_lines.append(buffer)
+        self.buffer_text = ''
+        return buffer
+
+    def analyse_line(self, line_text):
+        count_num = count_sep = count_str = 0
+        for char in line_text:
+            if char in '1234567890':
+                count_num += 1
+            if char in 'abcdefghijklmnopqrstuvwxyz':
+                count_str += 1
+            if char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+                count_str += 1
+            if char in self.delimiter:
+                count_sep += 1
+            if char in self.new_line:
+                count_sep += 1
+
+        # Determine what the type of line_text is
+        if not count_sep > 0:
+            return 'line'
+        elif count_str > count_num:
+            return 'message'
+        elif count_str < count_num:
+            return 'data'
+        return 'invalid'
+
+
 class SerialThread(threading.Thread):
     """This is the controller"""
     is_running: threading.Event
@@ -216,29 +294,3 @@ class SerialHandler:
             print(message)
             return
         self.serial.write(message.encode())
-
-    def reorder(self):
-        if not len(self.data):
-            return
-        data: str = self.data.pop(0)
-        data: list = data.split(',')
-        if len(data) < 3:
-            return
-        try:
-            data: list = [float(d) for d in data]
-            self.queue_in.put(data)
-        except ValueError:
-            return
-
-    def format(self, buffer: bytes):
-        for char in buffer.decode('utf-8'):
-            if char in '\n':
-                if len(self.buffer) > 5:
-                    self.data.append(self.buffer)
-                self.buffer = ''
-                continue
-            if char in '\0\r':
-                continue
-            if char in '\t':
-                char = ','
-            self.buffer += char
