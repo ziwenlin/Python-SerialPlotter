@@ -36,7 +36,7 @@ class GraphFrame(tk.Frame):
         self.lines.append(line)
 
     def remove_line(self):
-        line = self.lines.pop(0)
+        line = self.lines.pop()
         line.remove()
 
     def draw(self):
@@ -74,7 +74,45 @@ class Controller(mvc.Controller):
         self.view = View(master)
         self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
 
+        self.view.after(1000, self.update_loop)
+        self.view.after(1000, self.update_graph_legend)
+        self.queue_data = interface.serial_interface.create_queue('data')
         self.view.winfo_toplevel().bind('<<UpdateFilters>>', self.update_graph_legend, add='+')
+
+    def update_loop(self):
+        queue_state = not self.queue_data.empty()
+        while not self.queue_data.empty():
+            values = self.queue_data.get()
+            self.update_model_data(values)
+        # This reduces cpu usage
+        if queue_state is True:
+            self.update_lines_data()
+            self.view.graph.draw()
+        self.view.after(200, self.update_loop)
+
+    def update_model_data(self, values):
+        model_data = self.model.data
+
+        # Remove or create list to match the amount of data lines
+        while len(model_data) < len(values):
+            model_data.append([])
+        while len(model_data) > len(values):
+            model_data.pop()
+
+        # Update the graph labels and visibility
+        for list_values, value in zip(model_data, values):
+            if len(list_values) > 500:
+                del list_values[:50]  # Clean up
+            list_values.append(value)
+
+    def update_lines_data(self):
+        graph = self.view.graph
+        model_data = self.model.data
+
+        # Pair lines and model data together
+        for line, y_values in zip(graph.lines, model_data):
+            x_axis = [i for i in range(len(y_values))]
+            line.set_data(x_axis, y_values)
 
     def update_graph_legend(self, event=None):
         """
@@ -97,7 +135,7 @@ class Controller(mvc.Controller):
             line.set_visible(state == 1)
             line.set_label(name)
         # Update the legend of the plot
-        graph.plot.legend(handles=graph.lines)
+        graph.plot.legend(handles=graph.lines, loc='upper right')
         graph.draw()
 
     def on_close(self):
