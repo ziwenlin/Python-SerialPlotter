@@ -15,6 +15,7 @@ class GraphFrame(tk.Frame):
         super().__init__(master)
         # Create figure so graphs can be plotted
         self.figure = Figure(figsize=(9, 5))
+        self.figure.subplots_adjust(0.05, 0.08, 0.97, 0.95)
 
         # Create a canvas where the figure can be displayed
         self.canvas = FigureCanvasTkAgg(self.figure, self)
@@ -31,7 +32,8 @@ class GraphFrame(tk.Frame):
         self.lines: List[Line2D] = []
 
     def create_line(self):
-        line = Line2D([], [], linewidth=1)
+        index = len(self.lines)
+        line = Line2D([], [], linewidth=1, color=f'C{index}')
         self.plot.add_line(line)
         self.lines.append(line)
 
