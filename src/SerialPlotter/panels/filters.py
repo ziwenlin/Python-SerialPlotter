@@ -9,13 +9,13 @@ class BoxedEntriesFrame(tk.Frame):
     class BoxedEntry(tk.Frame):
         def __init__(self, master):
             super().__init__(master)
-            self.variable = variable = tk.IntVar(self)
+            self.variable = variable = tk.IntVar(self, 1)
 
             self.check_button = tk.Checkbutton(self, variable=variable)
             self.check_button.pack(side='left')
 
-            self.entry = tk.Entry(self)
-            self.entry.pack(side='left', fill='x')
+            self.entry = tk.Entry(self, width=30)
+            self.entry.pack(side='left', fill='x', expand=True, padx=(0, 5))
 
         def get_elements(self):
             return self.variable, self.check_button, self.entry
@@ -89,7 +89,7 @@ class Controller(mvc.Controller):
         self.model = Model()
         self.model.bind(interface)
         self.view = View(master)
-        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
+        self.view.pack(fill='both', side='left', padx=5, pady=5)
 
         self.view.bind_button('Add', self.command_add)
         self.view.bind_button('Remove', self.command_remove)
