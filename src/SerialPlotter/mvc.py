@@ -10,6 +10,7 @@ from .manager import TaskInterface
 class View(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
+        self.frames: Dict[str, tk.Frame] = {}
         self.text_field: Dict[str, tk.Text] = {}
         self.spin_boxes: Dict[str, tk.StringVar] = {}
         self.combo_boxes: Dict[str, ttk.Combobox] = {}
@@ -51,8 +52,25 @@ class View(tk.Frame):
         :param text: Text which will be displayed on the button
         """
         button = tk.Button(self, text=text)
-        button.configure(height=2, anchor='w', padx=8)
+        button.configure(anchor='w', padx=8, pady=6)
         button.pack(fill='both')
+        self.buttons[name] = button
+        return button
+
+    def create_group(self, group_name: str):
+        frame = tk.Frame(self)
+        frame.pack(fill='both', pady=2)
+        self.frames[group_name] = frame
+        return frame
+
+    def create_grouped_button(self, group: str, name: str, text: str):
+        frame = self.frames[group]
+        index = len(frame.winfo_children())
+        frame.grid_columnconfigure(index, weight=1, uniform=group)
+
+        button = tk.Button(frame, text=text)
+        button.configure(anchor='center', padx=8, pady=4)
+        button.grid(row=0, column=index, padx=1, sticky='we')
         self.buttons[name] = button
         return button
 
@@ -89,7 +107,7 @@ class View(tk.Frame):
         """
         self.check_buttons[name] = variable = tk.IntVar()
         check_button = tk.Checkbutton(self, text=text, variable=variable)
-        check_button.pack(anchor='w')
+        check_button.pack(anchor='w', padx=(0, 5))
         return check_button, variable
 
     def create_entry(self, name: str):
