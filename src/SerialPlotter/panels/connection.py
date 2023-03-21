@@ -21,7 +21,7 @@ class View(mvc.View):
         # Label which will list the device status
         # Controller logic will update this text
         self.create_label_header('Device status:')
-        self.create_label('Success', 'Please select a device')
+        self.create_label('Status', 'Please select a device').configure(width=30)
 
         # Header label select device
         # Combobox which list available devices to connect
@@ -31,9 +31,10 @@ class View(mvc.View):
         self.create_combobox('Device', 'None')
 
         # Buttons which are controlling the connection
-        self.create_button('Connect', 'Connect')
-        self.create_button('Disconnect', 'Disconnect')
-        self.create_button('Reconnect', 'Reconnect')
+        self.create_group('Controls')
+        self.create_grouped_button('Controls', 'Connect', 'Connect')
+        self.create_grouped_button('Controls', 'Disconnect', 'Disconnect')
+        self.create_grouped_button('Controls', 'Reconnect', 'Reconnect')
 
 
 class Model(mvc.Model):
@@ -51,7 +52,7 @@ class Controller(mvc.Controller):
         self.model = Model()
         self.model.bind(interface)
         self.view = View(master)
-        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
+        self.view.pack(fill='both', side='left', padx=5, pady=5)
         self.view.bind_button('Connect', self.command_connect)
         self.view.bind_button('Disconnect', self.command_disconnect)
         self.view.bind_button('Reconnect', self.command_reconnect)
@@ -87,7 +88,7 @@ class Controller(mvc.Controller):
         if status == '':
             self.view.after(500, self.update_display_status)
             return
-        self.view.update_label('Success', status)
+        self.view.update_label('Status', status)
 
     def command_connect(self):
         # Read the selected device name from the combobox
@@ -96,21 +97,21 @@ class Controller(mvc.Controller):
         self.queue_out.put('connect ' + device_name)
         self.view.after(500, self.update_display_status)
         # Update the connection status label
-        self.view.update_label('Success', 'Connecting to device...')
+        self.view.update_label('Status', 'Connecting to device...')
 
     def command_disconnect(self):
         # Attempt disconnecting from the current device
         self.queue_out.put('disconnect')
         self.view.after(500, self.update_display_status)
         # Update the connection status label
-        self.view.update_label('Success', 'Disconnecting from device...')
+        self.view.update_label('Status', 'Disconnecting from device...')
 
     def command_reconnect(self):
         # Attempt disconnecting and reconnecting to the current device
         self.queue_out.put('reconnect')
         self.view.after(500, self.update_display_status)
         # Update the connection status label
-        self.view.update_label('Success', 'Reconnecting to device...')
+        self.view.update_label('Status', 'Reconnecting to device...')
 
     def command_refresh(self):
         # Gather the ports and extract the device names into a new list
