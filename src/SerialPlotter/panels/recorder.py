@@ -1,7 +1,6 @@
 import tkinter as tk
 
 from .. import mvc
-from ..files import csv_save_append, csv_save_create
 from ..manager import TaskInterface
 
 
@@ -63,6 +62,8 @@ class Controller(mvc.Controller):
 
         self.model.load()
         self.update_view()
+        self.queue_command = interface.storage_interface.queue_command
+        self.queue_status = interface.storage_interface.queue_status
 
     def on_close(self):
         self.update_model()
@@ -83,33 +84,41 @@ class Controller(mvc.Controller):
         self.view.check_buttons['File append'].set(settings['file_append'])
         self.view.check_buttons['File overwrite'].set(settings['file_overwrite'])
 
-    def command_save(self):
-        record_data = self.interface.graph_data['record csv']
-        auto_save_var = self.view.check_buttons['Auto save']
-        file_append_var = self.view.check_buttons['File append']
-        file_overwrite_var = self.view.check_buttons['File overwrite']
-        name = self.view.entries['Save'].get()
-        # name = trigger['name']
-        if auto_save_var.get() == 1:
+    def update_display_status(self):
+        status = ''
+        while not self.queue_status.empty():
+            status += self.queue_status.get() + ' '
+        if status == '':
+            self.view.after(500, self.update_display_status)
             return
-        elif file_append_var.get() == 1:
-            success = csv_save_append(name, record_data)
-        elif file_overwrite_var.get() == 1:
-            success = csv_save_create(name, record_data)
-        else:
-            success = csv_save_create(name, record_data)
-        if auto_save_var.get() == 0:
-            record_data.clear()
-        if success is True:
-            success = f'Saved data to {name}.csv'
-        elif success is False:
-            success = f'Could not save data to {name}.csv'
-        else:  # Fatal error
-            success = f'Something went wrong with {name}.csv'
-        self.view.update_label('Status', success)
+        self.view.update_label('Status', status)
+
+    def command_save(self):
+        state_auto_save = self.view.check_buttons['Auto save'].get() == 1
+        state_file_append = self.view.check_buttons['File append'].get() == 1
+        state_file_overwrite = self.view.check_buttons['File overwrite'].get() == 1
+
+        file_name = self.view.entries['Save'].get()
+        self.queue_command.put('file_name ' + file_name.replace(' ', '_'))
+        self.view.after(500, self.update_display_status)
+
+        if state_auto_save is True:
+            return
+        elif state_file_append is True:
+            self.queue_command.put('recorder save')
+            return
+        elif state_file_overwrite is True:
+            self.queue_command.put('recorder overwrite')
+            return
+        # No settings known is default to nothing
+        return
 
     def command_start(self):
-        self.view.update_label('Status', 'Started recording')
+        self.queue_command.put('recorder start')
+        self.view.after(500, self.update_display_status)
+        self.view.update_label('Status', 'Waiting for response...')
 
     def command_pause(self):
-        self.view.update_label('Status', 'Paused recording')
+        self.queue_command.put('recorder pause')
+        self.view.after(500, self.update_display_status)
+        self.view.update_label('Status', 'Waiting for response...')
