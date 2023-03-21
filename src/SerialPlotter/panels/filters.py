@@ -54,14 +54,16 @@ class View(mvc.View):
         super().__init__(master)
 
         self.create_label_header('Graph filters:')
-
         self.filter = BoxedEntriesFrame(self)
         self.filter.pack(fill='both', pady=5)
 
-        self.create_button('Restore', 'Restore filters').pack(side='bottom')
-        self.create_button('Save', 'Save filters').pack(side='bottom')
-        self.create_button('Remove', 'Remove filter').pack(side='bottom')
-        self.create_button('Add', 'Add filter').pack(side='bottom')
+        self.create_group('Settings')
+        self.create_group('Filters')
+
+        self.create_grouped_button('Filters', 'Add', 'Add filter')
+        self.create_grouped_button('Filters', 'Remove', 'Remove filter')
+        self.create_grouped_button('Settings', 'Save', 'Save filters')
+        self.create_grouped_button('Settings', 'Restore', 'Restore filters')
 
 
 class Model(mvc.Model):
