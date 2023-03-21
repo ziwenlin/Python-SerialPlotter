@@ -2,6 +2,7 @@ import threading
 from typing import List, Dict
 
 from .program import SerialThread, SerialInterface
+from .storage import StorageThread, StorageInterace
 
 UPDATE_INTERVAL = 500
 
@@ -49,11 +50,20 @@ class TaskManager:
 class TaskInterface:
     tasks_manager: TaskManager
     serial_interface: SerialInterface
+    storage_interface: StorageInterace
     application_settings: Dict[str, Dict[str, any]]
 
     def __init__(self):
         self.tasks_manager = TaskManager()
         self.application_settings = {}
-        thread = SerialThread(self.tasks_manager.running)
-        self.serial_interface = thread.interface
-        self.tasks_manager.add(thread)
+
+        # Create a thread for serial tasks
+        serial = SerialThread(self.tasks_manager.running)
+        self.serial_interface = serial.interface
+        self.tasks_manager.add(serial)
+
+        # Create a thread for storage tasks
+        storage = StorageThread(self.tasks_manager.running)
+        storage.interface.queue_data = serial.interface.create_queue('data')
+        self.storage_interface = storage.interface
+        self.tasks_manager.add(storage)
