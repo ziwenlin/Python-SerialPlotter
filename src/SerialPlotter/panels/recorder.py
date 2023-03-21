@@ -8,33 +8,32 @@ class View(mvc.View):
     def __init__(self, master):
         super().__init__(master)
 
-        # Header label file name
-        self.create_label_header('Save file name:')
-
-        # Entry for file name
-        self.create_entry_with_button('Save', 'Save')
-
-        # Header label recorder controls
-        self.create_label_header('Recorder controls:')
-
-        # Buttons with the display labels
-        self.create_button('Start', 'Start')
-        self.create_button('Pause', 'Pause')
-
-        # Header label recorder status
-        self.create_label_header('Recorder status:')
-
+        # Recorder status
         # Label which will list the recorder status
         # Controller logic will update this text
+        self.create_label_header('Recorder status:')
         self.create_label('Status', 'Standby')
 
-        # Header label recorder settings
-        self.create_label_header('Recorder settings:')
+        # Recorder controls
+        # Buttons which controls the recorder
+        self.create_label_header('Recorder controls:')
+        self.create_group('Controls')
+        self.create_grouped_button('Controls', 'Start', 'Start')
+        self.create_grouped_button('Controls', 'Pause', 'Pause')
+        self.create_grouped_button('Controls', 'Save', 'Save')
 
-        # Check buttons options
-        self.create_check_button('Auto save', 'Automatically save incoming data')
+        # File name entry with button to save
+        self.create_label_header('File name:')
+        self.create_entry('Save')
+
+        # Recorder settings
+        self.create_label_header('Recorder settings:')
+        self.create_check_button('Auto save', 'Automatically save data when recording')
         self.create_check_button('File append', 'Append recorder save file data when saving manually')
         self.create_check_button('File overwrite', 'Overwrite recorder save file data when saving manually')
+
+        # Save recorder settings
+        self.create_button('Settings', 'Save settings')
 
 
 class Model(mvc.Model):
@@ -54,11 +53,12 @@ class Controller(mvc.Controller):
         self.model = Model()
         self.model.bind(interface)
         self.view = View(master)
-        self.view.pack(fill='both', side='left', expand=True, padx=5, pady=5)
+        self.view.pack(fill='both', side='left', padx=5, pady=5)
 
         self.view.bind_button('Save', self.command_save)
         self.view.bind_button('Start', self.command_start)
         self.view.bind_button('Pause', self.command_pause)
+        self.view.bind_button('Settings', self.command_settings)
 
         self.model.load()
         self.update_view()
@@ -93,24 +93,36 @@ class Controller(mvc.Controller):
             return
         self.view.update_label('Status', status)
 
+    def command_settings(self):
+        file_name = self.view.entries['Save'].get()
+        self.queue_command.put('file_name ' + file_name.replace(' ', '_'))
+
+        state_auto_save = self.view.check_buttons['Auto save'].get() == 1
+        if state_auto_save is True:
+            self.queue_command.put('auto_save enable')
+        else:
+            self.queue_command.put('auto_save disable')
+
+        self.view.after(500, self.update_display_status)
+
     def command_save(self):
         state_auto_save = self.view.check_buttons['Auto save'].get() == 1
         state_file_append = self.view.check_buttons['File append'].get() == 1
         state_file_overwrite = self.view.check_buttons['File overwrite'].get() == 1
 
-        file_name = self.view.entries['Save'].get()
-        self.queue_command.put('file_name ' + file_name.replace(' ', '_'))
-        self.view.after(500, self.update_display_status)
-
         if state_auto_save is True:
+            self.view.update_label('Status', 'This feature is disabled')
             return
         elif state_file_append is True:
+            self.view.after(500, self.update_display_status)
             self.queue_command.put('recorder save')
             return
         elif state_file_overwrite is True:
+            self.view.after(500, self.update_display_status)
             self.queue_command.put('recorder overwrite')
             return
         # No settings known is default to nothing
+        self.view.update_label('Status', 'Standby')
         return
 
     def command_start(self):
