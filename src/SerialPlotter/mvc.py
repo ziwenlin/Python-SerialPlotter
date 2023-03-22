@@ -98,6 +98,18 @@ class View(tk.Frame):
         label.pack(fill='both', pady=(15, 0))
         return label
 
+    def create_labeled_entry(self, name: str, text: str):
+        frame = tk.Frame(self)
+        frame.pack(fill='both', pady=2, padx=10)
+        frame.grid_columnconfigure(1, weight=2, uniform='LE')
+        frame.grid_columnconfigure(0, weight=1, uniform='LE')
+
+        self.entries[name] = entry = tk.Entry(frame)
+        entry.grid(row=0, column=1, sticky='we')
+        label = tk.Label(frame, text=text)
+        label.grid(row=0, column=0, sticky='w', padx=(0, 10))
+        return frame, label, entry
+
     def create_check_button(self, name: str, text: str):
         """
         Creates a checkbutton with the desired text
