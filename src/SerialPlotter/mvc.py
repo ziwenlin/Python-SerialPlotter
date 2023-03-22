@@ -130,13 +130,15 @@ class View(tk.Frame):
     def create_entry_with_button(self, name: str, text: str):
         frame = tk.Frame(self)
         frame.pack(fill='both', pady=(5, 10), padx=5)
+        frame.grid_columnconfigure(1, weight=5, uniform='EB')
+        frame.grid_columnconfigure(0, weight=1, uniform='EB')
 
         self.entries[name] = entry = tk.Entry(frame)
-        entry.pack(fill='both', side='left', expand=True)
+        entry.grid(row=0, column=1, sticky='we')
 
         self.buttons[name] = button = tk.Button(frame, text=text)
-        button.configure(anchor='w', padx=8)
-        button.pack(fill='both', side='right', padx=(5, 0))
+        button.configure(anchor='center', padx=8)
+        button.grid(row=0, column=0, sticky='we', padx=(0, 5))
 
         return frame, entry, button
 
