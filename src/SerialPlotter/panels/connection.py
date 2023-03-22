@@ -17,18 +17,18 @@ class View(mvc.View):
         self.create_label('Ports', 'Please press refresh').configure(height=4)
         self.create_button('Refresh', 'Refresh')
 
-        # Header label device status
-        # Label which will list the device status
-        # Controller logic will update this text
-        self.create_label_header('Device status:')
-        self.create_label('Status', 'Please select a device').configure(width=30)
-
         # Header label select device
         # Combobox which list available devices to connect
         # Controller logic will update the list of devices
         self.create_label_header('Select device:')
         self.create_check_button('Remember', 'Remember')
         self.create_combobox('Device', 'None')
+
+        # Header label device status
+        # Label which will list the device status
+        # Controller logic will update this text
+        self.create_label_header('Device status:')
+        self.create_label('Status', 'Please select a device').configure(width=30)
 
         # Buttons which are controlling the connection
         self.create_group('Controls')

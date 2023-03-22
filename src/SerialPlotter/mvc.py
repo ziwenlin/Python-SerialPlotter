@@ -28,11 +28,11 @@ class View(tk.Frame):
         :param text: Desired text which will be displayed
         """
         label = self.labels.get(name)
-        wrap = label.winfo_width()
+        wrap = label.winfo_width() - 20
         font = tk.font.nametofont(label['font'])
-        text_height = font.measure(text) // wrap
+        text_height = sum([font.measure(t) // wrap for t in text.split('\n')])
         label_height = text.count('\n') + text_height + 1
-        label.config(height=label_height, text=text, wraplength=wrap - 10)
+        label.config(height=label_height, text=text, wraplength=wrap)
 
     def bind_button(self, name: str, command: ()):
         """
@@ -59,7 +59,7 @@ class View(tk.Frame):
 
     def create_group(self, group_name: str):
         frame = tk.Frame(self)
-        frame.pack(fill='both', pady=2)
+        frame.pack(fill='both', pady=10)
         self.frames[group_name] = frame
         return frame
 
@@ -82,8 +82,8 @@ class View(tk.Frame):
         :param text: Desired text which will be displayed
         """
         label = tk.Label(self, text=text)
-        label.configure(anchor='nw', padx=10, height=1, width=3, justify='left')
-        label.pack(fill='both', pady=2)
+        label.configure(anchor='nw', height=1, width=3, justify='left')
+        label.pack(fill='both', pady=2, padx=10)
         self.labels[name] = label
         return label
 
@@ -119,7 +119,7 @@ class View(tk.Frame):
         """
         self.check_buttons[name] = variable = tk.IntVar()
         check_button = tk.Checkbutton(self, text=text, variable=variable)
-        check_button.pack(anchor='w', padx=(0, 5))
+        check_button.pack(anchor='w', padx=(5, 5))
         return check_button, variable
 
     def create_entry(self, name: str):
@@ -147,7 +147,7 @@ class View(tk.Frame):
             values = []
 
         self.combo_boxes[name] = combobox = ttk.Combobox(self, values=values)
-        combobox.pack(fill='both', padx=5, pady=(5, 20))
+        combobox.pack(fill='both', padx=(5, 0), pady=(5, 10))
         combobox.set(default_value)
         return combobox
 

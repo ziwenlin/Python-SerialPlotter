@@ -16,13 +16,13 @@ class View(mvc.View):
         self.create_label_header('Send command to device:')
         self.create_radio_buttons('Remember', [
             'Remove after send', 'Keep after send',
-            'Keep and send when connecting'])
+        ])
         self.create_entry_with_button('Out', 'Send')
 
         # Header label incoming data
         self.create_label_header('Incoming data:')
         self.create_radio_buttons('Show', [
-            'Disable', 'Show input', 'Show messages', 'Show values'])
+            'Hide all', 'Show input', 'Show messages', 'Show values'])
         self.create_text_field('In')
 
 

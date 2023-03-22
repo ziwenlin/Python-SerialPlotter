@@ -50,6 +50,7 @@ class ApplicationModel(mvc.Model):
             'version': '2.0',
         })
 
+
 class ApplicationController(mvc.Controller):
     def __init__(self, master: tk.Tk, interface: TaskInterface):
         self.model = ApplicationModel()
@@ -74,7 +75,7 @@ class ApplicationController(mvc.Controller):
 
     def on_close(self):
         # Called when the user wants to close the application
-        self.master.after(500, self.master.destroy)
+        self.master.after(100, self.master.quit)
         self.interface.tasks_manager.stop()
         # Run the close procedure in the controllers
         self.connection_controller.on_close()

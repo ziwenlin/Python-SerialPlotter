@@ -107,7 +107,7 @@ class Controller(mvc.Controller):
         if status == '':
             self.view.after(500, self.update_display_status)
             return
-        self.view.update_label('Status', status)
+        self.view.update_label('Status', status[:-1])
 
     def command_directory_data(self):
         entry = self.view.entries['Folder']
