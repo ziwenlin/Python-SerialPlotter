@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.filedialog
 
 from .. import mvc
 from ..manager import TaskInterface
@@ -23,8 +24,13 @@ class View(mvc.View):
         self.create_grouped_button('Controls', 'Save', 'Save')
 
         # File name entry with button to save
-        self.create_label_header('File name:')
-        self.create_entry('Save')
+        self.create_label_header('Recorder settings:')
+        self.create_labeled_entry('File', 'File name:')
+        self.create_labeled_entry('Folder', 'Data directory:')
+        self.create_labeled_entry('Backup', 'Backup directory:')
+        self.create_group('Directory')
+        self.create_grouped_button('Directory', 'Folder', 'Choose data directory')
+        self.create_grouped_button('Directory', 'Backup', 'Choose backup directory')
 
         # Recorder settings
         self.create_label_header('Recorder settings:')
@@ -44,6 +50,8 @@ class Model(mvc.Model):
             'auto_save': 0,
             'file_append': 0,
             'file_overwrite': 0,
+            'data_dir': './data/',
+            'backup_dir': './backup/',
         })
 
 
@@ -59,6 +67,8 @@ class Controller(mvc.Controller):
         self.view.bind_button('Start', self.command_start)
         self.view.bind_button('Pause', self.command_pause)
         self.view.bind_button('Settings', self.command_settings)
+        self.view.bind_button('Folder', self.command_directory_data)
+        self.view.bind_button('Backup', self.command_directory_backup)
 
         self.model.load()
         self.update_view()
@@ -71,15 +81,21 @@ class Controller(mvc.Controller):
 
     def update_model(self):
         settings = self.model.settings
-        settings['file_name'] = self.view.entries['Save'].get()
+        settings['file_name'] = self.view.entries['File'].get()
+        settings['data_dir'] = self.view.entries['Folder'].get()
+        settings['backup_dir'] = self.view.entries['Backup'].get()
         settings['auto_save'] = self.view.check_buttons['Auto save'].get()
         settings['file_append'] = self.view.check_buttons['File append'].get()
         settings['file_overwrite'] = self.view.check_buttons['File overwrite'].get()
 
     def update_view(self):
         settings = self.model.settings
-        self.view.entries['Save'].delete(0, tk.END)
-        self.view.entries['Save'].insert(0, settings['file_name'])
+        self.view.entries['File'].delete(0, tk.END)
+        self.view.entries['File'].insert(0, settings['file_name'])
+        self.view.entries['Folder'].delete(0, tk.END)
+        self.view.entries['Folder'].insert(0, settings['data_dir'])
+        self.view.entries['Backup'].delete(0, tk.END)
+        self.view.entries['Backup'].insert(0, settings['backup_dir'])
         self.view.check_buttons['Auto save'].set(settings['auto_save'])
         self.view.check_buttons['File append'].set(settings['file_append'])
         self.view.check_buttons['File overwrite'].set(settings['file_overwrite'])
@@ -87,14 +103,30 @@ class Controller(mvc.Controller):
     def update_display_status(self):
         status = ''
         while not self.queue_status.empty():
-            status += self.queue_status.get() + ' '
+            status += self.queue_status.get() + '\n'
         if status == '':
             self.view.after(500, self.update_display_status)
             return
         self.view.update_label('Status', status)
 
+    def command_directory_data(self):
+        entry = self.view.entries['Folder']
+        path = tk.filedialog.askdirectory(initialdir='./')
+        if path == '':
+            return
+        entry.delete(0, tk.END)
+        entry.insert(0, path)
+
+    def command_directory_backup(self):
+        entry = self.view.entries['Backup']
+        path = tk.filedialog.askdirectory(initialdir='./')
+        if path == '':
+            return
+        entry.delete(0, tk.END)
+        entry.insert(0, path)
+
     def command_settings(self):
-        file_name = self.view.entries['Save'].get()
+        file_name = self.view.entries['File'].get()
         self.queue_command.put('file_name ' + file_name.replace(' ', '_'))
 
         state_auto_save = self.view.check_buttons['Auto save'].get() == 1
@@ -111,7 +143,7 @@ class Controller(mvc.Controller):
         state_file_overwrite = self.view.check_buttons['File overwrite'].get() == 1
 
         if state_auto_save is True:
-            self.view.update_label('Status', 'This feature is disabled')
+            self.view.update_label('Status', 'Manually saving is disabled')
             return
         elif state_file_append is True:
             self.view.after(500, self.update_display_status)
