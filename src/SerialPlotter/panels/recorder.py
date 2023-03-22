@@ -131,10 +131,12 @@ class Controller(mvc.Controller):
 
         state_auto_save = self.view.check_buttons['Auto save'].get() == 1
         if state_auto_save is True:
-            self.queue_command.put('auto_save enable')
+            command = 'auto_save enable'
         else:
-            self.queue_command.put('auto_save disable')
+            command = 'auto_save disable'
+        self.queue_command.put(command)
 
+        self.view.winfo_toplevel().event_generate('<<UpdateRecorder>>')
         self.view.after(500, self.update_display_status)
 
     def command_save(self):

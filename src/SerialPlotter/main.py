@@ -4,7 +4,7 @@ from typing import Dict
 
 from . import mvc, files
 from .manager import TaskInterface
-from .panels import communication, connection, recorder, filters, graph
+from .panels import communication, connection, recorder, filters, graph, formatter
 
 
 class ApplicationView(mvc.View):
@@ -50,7 +50,6 @@ class ApplicationModel(mvc.Model):
             'version': '2.0',
         })
 
-
 class ApplicationController(mvc.Controller):
     def __init__(self, master: tk.Tk, interface: TaskInterface):
         self.model = ApplicationModel()
@@ -70,6 +69,7 @@ class ApplicationController(mvc.Controller):
         self.connection_controller = connection.Controller(tab_connection, interface)
         self.communication_controller = communication.Controller(tab_connection, interface)
         self.recorder_controller = recorder.Controller(tab_recorder, interface)
+        self.format_controller = formatter.Controller(tab_recorder, interface)
         self.filter_controller = filters.Controller(tab_graph_display, interface)
         self.graph_controller = graph.Controller(tab_graph_display, interface)
 
@@ -81,6 +81,7 @@ class ApplicationController(mvc.Controller):
         self.connection_controller.on_close()
         self.communication_controller.on_close()
         self.recorder_controller.on_close()
+        self.format_controller.on_close()
         self.filter_controller.on_close()
         self.graph_controller.on_close()
 
