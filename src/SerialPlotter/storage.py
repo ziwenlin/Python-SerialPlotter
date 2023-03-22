@@ -56,8 +56,6 @@ class StorageHolder:
     def save_recorder_data(self):
         if not len(self.recorder_data) > 0:
             return
-        if not len(self.file_name) > 0:
-            self.file_name = 'Unnamed'
         files.CSV_DELIMITER = self.delimiter
         files.csv_save_append(self.file_name, self.recorder_data)
         self.recorder_data.clear()
@@ -78,11 +76,13 @@ class StorageThread(threading.Thread):
         self.is_running = event
         self.interface = StorageInterace()
         self.storage = StorageHolder()
+        self.success = 0
 
     def run(self):
         self.is_running.set()
         while self.is_running.is_set():
             self.update_request_queues()
+            self.update_settings_status()
             self.storage.update()
             time.sleep(0.2)
         self.exit()
@@ -91,6 +91,12 @@ class StorageThread(threading.Thread):
         if self.storage.is_auto_save is True:
             self.storage.save_recorder_data()
         self.storage.save_backup_data()
+
+    def update_settings_status(self):
+        if self.success == 0:
+            return
+        self.success = 0
+        self.interface.queue_status.put('Succesfully saved settings')
 
     def update_request_queues(self):
         while not self.interface.queue_data.empty():
@@ -102,22 +108,28 @@ class StorageThread(threading.Thread):
 
     def process_command(self, command: str):
         cmd, *arg = command.split(' ')
-        if cmd == 'delimiter':
-            message = self.process_delimiter(arg[0])
-        elif cmd == 'recorder':
+        if cmd == 'recorder':
             message = self.process_recorder(arg[0])
         elif cmd == 'auto_save':
             message = self.process_auto_save(arg[0])
         elif cmd == 'file_name':
             message = self.process_file_name(arg[0])
+        elif cmd == 'delimiter':
+            message = self.process_delimiter(arg[0])
+        elif cmd == 'decimal':
+            message = self.process_decimal(arg[0])
         else:
             message = f'Unknown command: {command}'
+        if message == 'success':
+            self.success += 1
+            return
         self.interface.queue_status.put(message)
 
     def process_file_name(self, file_name):
+        if len(file_name) == 0:
+            file_name = 'Unnamed'
         self.storage.file_name = file_name
-        message = f'File name changed to {file_name}.csv '
-        return message
+        return 'success'
 
     def process_recorder(self, subcommand: str):
         if subcommand == 'start':
@@ -132,14 +144,28 @@ class StorageThread(threading.Thread):
         return 'Unknown subcommand'
 
     def process_delimiter(self, delimiter: str):
-        self.storage.delimiter = delimiter
-        return 'Delimiter set to ' + str(delimiter.encode())
+        if delimiter == 'comma':
+            self.storage.delimiter = ','
+        elif delimiter == 'semicolon':
+            self.storage.delimiter = ';'
+        else:
+            return 'Unknown delimiter ' + delimiter
+        return 'success'
+
+    def process_decimal(self, decimal: str):
+        if decimal == 'comma':
+            self.storage.decimal = ','
+        elif decimal == 'dot':
+            self.storage.decimal = '.'
+        else:
+            return 'Unknown decimal ' + decimal
+        return 'success'
 
     def process_auto_save(self, state: str):
         if state == 'enable':
             self.storage.is_auto_save = True
-            return 'Auto save enabled'
         elif state == 'disable':
             self.storage.is_auto_save = False
-            return 'Auto save disabled'
-        return 'Unknown state'
+        else:
+            return 'Unknown auto save state'
+        return 'success'
