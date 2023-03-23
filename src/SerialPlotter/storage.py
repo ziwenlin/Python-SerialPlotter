@@ -29,8 +29,6 @@ class StorageHolder:
         self.is_recording = False
         self.is_auto_save = False
         self.file_name = 'Unnamed'
-        self.delimiter = ';'
-        self.decimal = ','
 
     def add(self, data):
         if self.is_recording is True:
@@ -56,14 +54,12 @@ class StorageHolder:
     def save_recorder_data(self):
         if not len(self.recorder_data) > 0:
             return
-        files.CSV_DELIMITER = self.delimiter
         files.csv_save_append(self.file_name, self.recorder_data)
         self.recorder_data.clear()
 
     def save_backup_data(self):
         if not len(self.backup_data) > 0:
             return
-        files.CSV_DELIMITER = self.delimiter
         files.csv_save_auto(self.backup_data)
         self.backup_data.clear()
 
@@ -114,6 +110,10 @@ class StorageThread(threading.Thread):
             message = self.process_auto_save(arg[0])
         elif cmd == 'file_name':
             message = self.process_file_name(arg[0])
+        elif cmd == 'data_dir':
+            message = self.process_data_directory(arg[0])
+        elif cmd == 'backup_dir':
+            message = self.process_backup_directory(arg[0])
         elif cmd == 'delimiter':
             message = self.process_delimiter(arg[0])
         elif cmd == 'decimal':
@@ -125,10 +125,22 @@ class StorageThread(threading.Thread):
             return
         self.interface.queue_status.put(message)
 
-    def process_file_name(self, file_name):
+    def process_file_name(self, file_name: str):
         if len(file_name) == 0:
             file_name = 'Unnamed'
         self.storage.file_name = file_name
+        return 'success'
+
+    def process_data_directory(self, folder_path: str):
+        if len(folder_path) == 0:
+            folder_path = './data/'
+        files.CSV_FOLDER = folder_path.replace('%', ' ')
+        return 'success'
+
+    def process_backup_directory(self, folder_path: str):
+        if len(folder_path) == 0:
+            folder_path = './backup/'
+        files.CSV_BACKUP = folder_path.replace('%', ' ')
         return 'success'
 
     def process_recorder(self, subcommand: str):
@@ -145,18 +157,18 @@ class StorageThread(threading.Thread):
 
     def process_delimiter(self, delimiter: str):
         if delimiter == 'comma':
-            self.storage.delimiter = ','
+            files.CSV_DELIMITER = ','
         elif delimiter == 'semicolon':
-            self.storage.delimiter = ';'
+            files.CSV_DELIMITER = ';'
         else:
             return 'Unknown delimiter ' + delimiter
         return 'success'
 
     def process_decimal(self, decimal: str):
         if decimal == 'comma':
-            self.storage.decimal = ','
+            files.CSV_DECIMAL = ','
         elif decimal == 'dot':
-            self.storage.decimal = '.'
+            files.CSV_DECIMAL = '.'
         else:
             return 'Unknown decimal ' + decimal
         return 'success'

@@ -62,6 +62,8 @@ class Controller(mvc.Controller):
         self.model.bind(interface)
         self.view = View(master)
         self.view.pack(fill='both', side='left', padx=5, pady=5)
+        self.view.after(500, self.command_settings)
+        self.view.after(2000, lambda: self.view.update_label('Status', 'Standby'))
 
         self.view.bind_button('Save', self.command_save)
         self.view.bind_button('Start', self.command_start)
@@ -115,7 +117,7 @@ class Controller(mvc.Controller):
         if path == '':
             return
         entry.delete(0, tk.END)
-        entry.insert(0, path)
+        entry.insert(0, path + '/')
 
     def command_directory_backup(self):
         entry = self.view.entries['Backup']
@@ -123,11 +125,17 @@ class Controller(mvc.Controller):
         if path == '':
             return
         entry.delete(0, tk.END)
-        entry.insert(0, path)
+        entry.insert(0, path + '/')
 
     def command_settings(self):
         file_name = self.view.entries['File'].get()
         self.queue_command.put('file_name ' + file_name.replace(' ', '_'))
+
+        data_dir = self.view.entries['Folder'].get()
+        self.queue_command.put('data_dir ' + data_dir.replace(' ', '%'))
+
+        data_dir = self.view.entries['Backup'].get()
+        self.queue_command.put('backup_dir ' + data_dir.replace(' ', '%'))
 
         state_auto_save = self.view.check_buttons['Auto save'].get() == 1
         if state_auto_save is True:
