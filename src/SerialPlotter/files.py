@@ -1,12 +1,16 @@
-import json
-import csv
 import datetime
+import json
 from pathlib import Path
+
+import pandas
 
 SETTINGS_FILE = 'settings.json'
 
+CSV_BACKUP = './backup/'
 CSV_FOLDER = './data/'
+
 CSV_DELIMITER = ','
+CSV_DECIMAL = '.'
 CSV_EXTENSION = '.csv'
 
 DATE_FORMAT = "%Y-%m-%d_%H_%M"
@@ -31,12 +35,20 @@ def json_save(settings: dict):
         jsf.write(js)
 
 
-def csv_writer(file):
-    return csv.writer(file, delimiter=CSV_DELIMITER)
+def csv_writer(file_path, data, mode):
+    dataframe = pandas.DataFrame(data)
+    dataframe.to_csv(file_path, mode=mode,
+                     decimal=CSV_DECIMAL, sep=CSV_DELIMITER,
+                     index=False, header=False)
+    return dataframe
 
 
 def csv_save_auto(data):
-    csv_save_append(DATE_TIME, data)
+    if not Path(CSV_BACKUP).exists():
+        Path(CSV_BACKUP).mkdir()
+    file_path = CSV_BACKUP + DATE_TIME + CSV_EXTENSION
+    csv_writer(file_path, data, 'a')
+    return True
 
 
 def csv_save_write(file_name, data):
@@ -44,9 +56,8 @@ def csv_save_write(file_name, data):
         file_name = 'Unnamed'
     if not Path(CSV_FOLDER).exists():
         Path(CSV_FOLDER).mkdir()
-    with open(CSV_FOLDER + file_name + CSV_EXTENSION, 'w', newline='') as file:
-        writer = csv_writer(file)
-        writer.writerows(data)
+    file_path = CSV_FOLDER + file_name + CSV_EXTENSION
+    csv_writer(file_path, data, 'w')
     return True
 
 
@@ -55,9 +66,8 @@ def csv_save_append(file_name, data):
         file_name = 'Unnamed'
     if not Path(CSV_FOLDER).exists():
         Path(CSV_FOLDER).mkdir()
-    with open(CSV_FOLDER + file_name + CSV_EXTENSION, 'a', newline='') as file:
-        writer = csv_writer(file)
-        writer.writerows(data)
+    file_path = CSV_FOLDER + file_name + CSV_EXTENSION
+    csv_writer(file_path, data, 'a')
     return True
 
 
@@ -66,10 +76,9 @@ def csv_save_create(file_name, data):
         file_name = 'Unnamed'
     if not Path(CSV_FOLDER).exists():
         Path(CSV_FOLDER).mkdir()
+    file_path = CSV_FOLDER + file_name + CSV_EXTENSION
     try:
-        with open(CSV_FOLDER + file_name + CSV_EXTENSION, 'x', newline='') as file:
-            writer = csv_writer(file)
-            writer.writerows(data)
+        csv_writer(file_path, data, 'x')
     except FileExistsError:
         return False
     return True
