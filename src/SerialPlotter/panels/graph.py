@@ -39,11 +39,14 @@ class GraphFrame(tk.Frame):
 
     def remove_line(self):
         line = self.lines.pop()
+        line.set_label(s=None)
         line.remove()
 
     def draw(self):
-        self.canvas.draw()
+        if self.winfo_viewable() == 0:
+            return
         self.canvas.flush_events()
+        self.canvas.draw_idle()
 
 
 class View(mvc.View):
@@ -52,6 +55,8 @@ class View(mvc.View):
         self.config(width=2000)
         self.graph = GraphFrame(self)
         self.graph.pack(fill='both', expand=True)
+        self.graph.plot.set_xlim(-10, 510)
+        self.graph.plot.set_ylim(-4, 54)
 
 
 class Model(mvc.Model):
@@ -90,7 +95,7 @@ class Controller(mvc.Controller):
         if queue_state is True:
             self.update_lines_data()
             self.view.graph.draw()
-        self.view.after(200, self.update_loop)
+        self.view.after(10, self.update_loop)
 
     def update_model_data(self, values):
         model_data = self.model.data
@@ -137,7 +142,8 @@ class Controller(mvc.Controller):
             line.set_visible(state == 1)
             line.set_label(name)
         # Update the legend of the plot
-        graph.plot.legend(handles=graph.lines, loc='upper right')
+        active_lines = [line for line in graph.lines if line.get_visible()]
+        graph.plot.legend(handles=active_lines, loc='upper left')
         graph.draw()
 
     def on_close(self):
