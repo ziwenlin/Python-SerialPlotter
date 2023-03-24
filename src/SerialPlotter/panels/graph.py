@@ -84,7 +84,7 @@ class Controller(mvc.Controller):
         self.view.after(1000, self.update_loop)
         self.view.after(1000, self.update_graph_legend)
         self.queue_data = interface.serial_interface.create_queue('data')
-        self.view.winfo_toplevel().bind('<<UpdateFilters>>', self.update_graph_legend, add='+')
+        self.view.winfo_toplevel().bind('<<UpdateFilters>>', lambda e: self.update_graph_legend(), add='+')
 
     def update_loop(self):
         queue_state = not self.queue_data.empty()
@@ -121,7 +121,7 @@ class Controller(mvc.Controller):
             x_axis = [i for i in range(len(y_values))]
             line.set_data(x_axis, y_values)
 
-    def update_graph_legend(self, event=None):
+    def update_graph_legend(self):
         """
         Updates the legend of the graph.
         """
@@ -139,8 +139,11 @@ class Controller(mvc.Controller):
         for filter, line in zip(filter_list, graph.lines):
             state = filter['state']
             name = filter['name']
+            if state == 1:
+                line.set_label(s=name)
+            else:
+                line.set_label(s=None)
             line.set_visible(state == 1)
-            line.set_label(name)
         # Update the legend of the plot
         active_lines = [line for line in graph.lines if line.get_visible()]
         graph.plot.legend(handles=active_lines, loc='upper left')

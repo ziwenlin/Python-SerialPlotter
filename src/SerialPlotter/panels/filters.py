@@ -82,7 +82,9 @@ class Model(mvc.Model):
 
     def load(self):
         super(Model, self).load()
-        self.filter_data = self.settings['filters']
+        self.filter_data.clear()
+        self.filter_data.extend(self.settings['filters'])
+        self.settings['filters'] = self.filter_data
 
 
 class Controller(mvc.Controller):
@@ -115,6 +117,7 @@ class Controller(mvc.Controller):
     def command_restore(self):
         self.model.load()
         self.update_view()
+        self.view.winfo_toplevel().event_generate('<<UpdateFilters>>')
 
     def on_close(self):
         self.update_model()
