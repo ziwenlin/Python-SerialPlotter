@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 import tkinter.filedialog
 
@@ -116,16 +117,20 @@ class Controller(mvc.Controller):
         path = tk.filedialog.askdirectory(initialdir='./')
         if path == '':
             return
+        program_path = os.getcwd().replace('\\', '/')
+        path = path.replace(program_path, '.') + '/'
         entry.delete(0, tk.END)
-        entry.insert(0, path + '/')
+        entry.insert(0, path)
 
     def command_directory_backup(self):
         entry = self.view.entries['Backup']
         path = tk.filedialog.askdirectory(initialdir='./')
         if path == '':
             return
+        program_path = os.getcwd().replace('\\', '/')
+        path = path.replace(program_path, '.') + '/'
         entry.delete(0, tk.END)
-        entry.insert(0, path + '/')
+        entry.insert(0, path)
 
     def command_settings(self):
         file_name = self.view.entries['File'].get()
