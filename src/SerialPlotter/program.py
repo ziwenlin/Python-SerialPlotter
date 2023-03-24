@@ -25,6 +25,9 @@ class BufferConverter:
     def __init__(self):
         self.delimiter = '\t'
         self.new_line = '\n'
+        self.carriage = '\r'
+        self.decimal = '.'
+        self.negative = '-'
 
         self.messages = []
         self.lines = []
@@ -49,14 +52,29 @@ class BufferConverter:
         status = self.analyse_line(line)
 
         if status == 'data':
-            self.convert_to_data(line)
-        else:
+            try:
+                self.convert_to_data(line)
+            except ValueError:
+                self.convert_to_invalid(line)
+        elif status == 'message':
             self.convert_to_message(line)
+        elif status == 'unknown':
+            self.convert_to_unknown(line)
+        else:
+            self.convert_to_invalid(line)
         self.lines.append(line)
         return True
 
     def convert_to_message(self, line_text):
         text = 'Message: ' + line_text
+        self.messages.append(text)
+
+    def convert_to_unknown(self, line_text: str):
+        text = 'Unknown: ' + str(line_text.encode())
+        self.messages.append(text)
+
+    def convert_to_invalid(self, line_text: str):
+        text = 'Invalid: ' + str(line_text.encode())
         self.messages.append(text)
 
     def convert_to_data(self, line_text):
@@ -74,23 +92,33 @@ class BufferConverter:
         return buffer
 
     def analyse_line(self, line_text: str):
-        count_num = count_sep = count_str = 0
+        numbers = alphabets = symbols = unknown = 0
         for char in line_text:
             if char.isnumeric():
-                count_num += 1
-            if char.isalpha():
-                count_str += 1
-            if char in self.delimiter:
-                count_sep += 1
-            if char in self.new_line:
-                count_sep += 1
+                numbers += 1
+            elif char.isalpha():
+                alphabets += 1
+            elif char in self.delimiter:
+                symbols += 1
+            elif char in self.new_line:
+                symbols += 1
+            elif char in self.carriage:
+                symbols += 1
+            elif char in self.decimal:
+                symbols += 1
+            elif char in self.negative:
+                symbols += 1
+            else:
+                unknown += 1
+                # print(char.encode())
+        # print(numbers, misc, alphabets, unknown)
 
         # Determine what the type of line_text is
-        if not count_sep > 0:
-            return 'line'
-        elif count_str > count_num:
+        if unknown > 0:
+            return 'unknown'
+        elif alphabets > 0:
             return 'message'
-        elif count_str < count_num:
+        elif numbers > 0:
             return 'data'
         return 'invalid'
 
@@ -121,7 +149,7 @@ class SerialThread(threading.Thread):
                 self.converter.update()
             for message in self.interface.get_items('out'):
                 self.serial.write(message)
-            sleep(0.1)
+            sleep(0.01)
         # Close serial connection when the main program wants to exit
         self.serial.disconnect()
 
@@ -300,7 +328,11 @@ class SerialHandler:
             rand = random.Random()
             return f'{rand.random()}\t{rand.random()}\t{rand.random()}\n'
         buffer = self.serial.read(32)
-        return buffer.decode()
+        try:
+            decode = buffer.decode()
+        except UnicodeError:
+            return ''
+        return decode
 
     def write(self, message: str):
         """
