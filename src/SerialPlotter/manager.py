@@ -1,7 +1,7 @@
 import threading
 from typing import List, Dict
 
-from .program import SerialThread, SerialInterface
+from .device import SerialThread, SerialInterface
 from .storage import StorageThread, StorageInterace
 
 UPDATE_INTERVAL = 500

@@ -3,7 +3,7 @@ from time import sleep
 
 import serial.tools.list_ports
 
-from SerialPlotter.program import SerialHandler, SerialThread
+from SerialPlotter.device import SerialHandler, SerialThread
 
 
 def main0():
