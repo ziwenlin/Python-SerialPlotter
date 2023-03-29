@@ -16,6 +16,7 @@ class ViewOld(tk.Frame):
         self.combo_boxes: Dict[str, ttk.Combobox] = {}
         self.check_buttons: Dict[str, tk.IntVar] = {}
         self.radio_buttons: Dict[str, tk.IntVar] = {}
+        self.scales: Dict[str, tk.DoubleVar] = {}
         self.labels: Dict[str, tk.Label] = {}
         self.buttons: Dict[str, tk.Button] = {}
         self.entries: Dict[str, tk.Entry] = {}
@@ -180,6 +181,25 @@ class ViewOld(tk.Frame):
             radio_buttons.append(radio_button)
 
         return frame, radio_buttons, variable
+
+    def create_ranged_slider(self, name, text, limits=(-10, 10, 0.1)):
+        a, b, c = limits
+        ratio_a = abs(a) / (b - a) * 100
+        ratio_b = abs(b) / (b - a) * 100
+
+        frame = tk.Frame(self)
+        frame.pack(fill='both', padx=5, pady=5)
+
+        label = tk.Label(frame, text=text)
+        label.pack(side='left', fill='both', anchor='e')
+
+        self.scales[name + 'Min'] = variable = tk.DoubleVar(frame)
+        scale = tk.Scale(frame, variable=variable, orient='horizontal', length=ratio_a, from_=a, to=0)
+        scale.pack(side='left', fill='both', expand=True)
+
+        self.scales[name + 'Max'] = variable = tk.DoubleVar(frame)
+        scale = tk.Scale(frame, variable=variable, orient='horizontal', length=ratio_b, from_=1, to=b)
+        scale.pack(side='left', fill='both', expand=True)
 
     def create_spinbox(self, name, text, limits=(-10, 10, 0.1)):
         a, b, c = limits
