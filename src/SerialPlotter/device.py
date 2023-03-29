@@ -114,11 +114,11 @@ class BufferConverter:
         # print(numbers, misc, alphabets, unknown)
 
         # Determine what the type of line_text is
+        if alphabets > 0:
+            return 'message'
         if unknown > 0:
             return 'unknown'
-        elif alphabets > 0:
-            return 'message'
-        elif numbers > 0:
+        if numbers > 0:
             return 'data'
         return 'invalid'
 
@@ -140,7 +140,7 @@ class SerialThread(threading.Thread):
             self.update_request_queues()
             self.update_response_queues()
             if not self.serial.is_connected.is_set():
-                sleep(0.5)
+                sleep(0.1)
                 continue
             while self.serial.available() > 0:
                 buffer = self.serial.read()
