@@ -67,6 +67,8 @@ class Model(mvc.ModelOld):
         super().__init__(None)
         self.filters = []
         self.data = []
+        self.buffer_size = 500
+        self.buffer_clear = 50
 
     def bind(self, interface: TaskInterface):
         super().bind(interface)
@@ -83,8 +85,10 @@ class Controller(mvc.ControllerOld):
 
         self.view.after(1000, self.update_loop)
         self.view.after(1000, self.update_graph_legend)
+        self.view.after(1000, self.update_graph_settings)
         self.queue_data = interface.serial_interface.create_queue('data')
         self.view.winfo_toplevel().bind('<<UpdateFilters>>', lambda e: self.update_graph_legend(), add='+')
+        self.view.winfo_toplevel().bind('<<UpdateSettings>>', lambda e: self.update_graph_settings(), add='+')
 
     def update_loop(self):
         queue_state = not self.queue_data.empty()
@@ -108,8 +112,8 @@ class Controller(mvc.ControllerOld):
 
         # Update the graph labels and visibility
         for list_values, value in zip(model_data, values):
-            if len(list_values) > 500:
-                del list_values[:50]  # Clean up
+            if len(list_values) > self.model.buffer_size:
+                del list_values[:self.model.buffer_clear]  # Clean up
             list_values.append(value)
 
     def update_lines_data(self):
@@ -148,6 +152,21 @@ class Controller(mvc.ControllerOld):
         active_lines = [line for line in graph.lines if line.get_visible()]
         graph.plot.legend(handles=active_lines, loc='upper left')
         graph.draw()
+
+    def update_graph_settings(self):
+        settings = self.model.settings['settings']
+        graph = self.view.graph
+
+        graph.plot.set_xlim(settings['graph_x_min'], settings['graph_x_max'])
+        graph.plot.set_ylim(settings['graph_y_min'], settings['graph_y_max'])
+        graph.draw()
+
+        graph_size = int(settings['graph_size'])
+        if graph_size > 0:
+            self.model.buffer_size = graph_size
+        graph_clear = int(settings['graph_clear'])
+        if graph_clear > 0:
+            self.model.buffer_clear = graph_clear
 
     def on_close(self):
         pass

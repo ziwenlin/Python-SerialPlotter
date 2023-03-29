@@ -4,7 +4,7 @@ from typing import Dict
 
 from . import mvc, files
 from .manager import TaskInterface
-from .panels import communication, connection, recorder, filters, graph, formatter
+from .panels import communication, connection, recorder, filters, graph, formatter, configure
 
 
 class ApplicationView(mvc.ViewOld):
@@ -71,8 +71,9 @@ class ApplicationController(mvc.ControllerOld):
         self.communication_controller = communication.Controller(tab_connection, interface)
         self.recorder_controller = recorder.Controller(tab_recorder, interface)
         self.format_controller = formatter.Controller(tab_recorder, interface)
-        self.filter_controller = filters.Controller(tab_graph_display, interface)
+        self.filter_controller = filters.Controller(tab_graph_settings, interface)
         self.graph_controller = graph.Controller(tab_graph_display, interface)
+        self.config_controller = configure.Controller(tab_graph_settings, interface)
 
     def on_close(self):
         # Called when the user wants to close the application
@@ -85,6 +86,7 @@ class ApplicationController(mvc.ControllerOld):
         self.format_controller.on_close()
         self.filter_controller.on_close()
         self.graph_controller.on_close()
+        self.config_controller.on_close()
 
     def update_model(self):
         pass
