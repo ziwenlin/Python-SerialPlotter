@@ -49,7 +49,7 @@ class GraphFrame(tk.Frame):
         self.canvas.draw_idle()
 
 
-class View(mvc.View):
+class View(mvc.ViewOld):
     def __init__(self, master):
         super().__init__(master)
         self.config(width=2000)
@@ -59,7 +59,7 @@ class View(mvc.View):
         self.graph.plot.set_ylim(-4, 54)
 
 
-class Model(mvc.Model):
+class Model(mvc.ModelOld):
     data: List[List[float]]
     filters: List[Dict[str, any]]
 
@@ -73,7 +73,7 @@ class Model(mvc.Model):
         self.filters = self.settings['filters']['filters']
 
 
-class Controller(mvc.Controller):
+class Controller(mvc.ControllerOld):
     def __init__(self, master, interface: TaskInterface):
         self.interface = interface
         self.model = Model()

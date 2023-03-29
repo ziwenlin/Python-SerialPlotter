@@ -6,7 +6,7 @@ from .. import mvc
 from ..manager import TaskInterface
 
 
-class View(mvc.View):
+class View(mvc.ViewOld):
     def __init__(self, master):
         super().__init__(master)
 
@@ -37,7 +37,7 @@ class View(mvc.View):
         self.create_grouped_button('Controls', 'Reconnect', 'Reconnect')
 
 
-class Model(mvc.Model):
+class Model(mvc.ModelOld):
     def __init__(self):
         super(Model, self).__init__('connection')
         self.settings.update({
@@ -46,7 +46,7 @@ class Model(mvc.Model):
         })
 
 
-class Controller(mvc.Controller):
+class Controller(mvc.ControllerOld):
     def __init__(self, master, interface: TaskInterface):
         self.interface = interface
         self.model = Model()

@@ -7,7 +7,7 @@ from .manager import TaskInterface
 from .panels import communication, connection, recorder, filters, graph, formatter
 
 
-class ApplicationView(mvc.View):
+class ApplicationView(mvc.ViewOld):
     def __init__(self, master):
         super().__init__(master)
         self.notebook_tabs: Dict[str, tk.Frame] = {}
@@ -32,7 +32,7 @@ class ApplicationView(mvc.View):
         return frame
 
 
-class ApplicationModel(mvc.Model):
+class ApplicationModel(mvc.ModelOld):
 
     def __init__(self):
         super().__init__(None)
@@ -50,7 +50,8 @@ class ApplicationModel(mvc.Model):
             'version': '2.0',
         })
 
-class ApplicationController(mvc.Controller):
+
+class ApplicationController(mvc.ControllerOld):
     def __init__(self, master: tk.Tk, interface: TaskInterface):
         self.model = ApplicationModel()
         self.view = ApplicationView(master)

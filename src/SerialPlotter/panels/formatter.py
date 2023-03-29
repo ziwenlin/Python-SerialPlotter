@@ -4,7 +4,7 @@ from .. import mvc
 from ..manager import TaskInterface
 
 
-class Model(mvc.Model):
+class Model(mvc.ModelOld):
     def __init__(self):
         super().__init__('format')
         self.settings.update({
@@ -13,7 +13,7 @@ class Model(mvc.Model):
         })
 
 
-class View(mvc.View):
+class View(mvc.ViewOld):
     def __init__(self, master):
         super().__init__(master)
 
@@ -26,7 +26,7 @@ class View(mvc.View):
         decimals['values'] = ['Dot', 'Comma', ]
 
 
-class Controller(mvc.Controller):
+class Controller(mvc.ControllerOld):
     def __init__(self, master, interface: TaskInterface):
         self.interface = interface
         self.model = Model()

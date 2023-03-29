@@ -49,7 +49,7 @@ class BoxedEntriesFrame(tk.Frame):
         return frame
 
 
-class View(mvc.View):
+class View(mvc.ViewOld):
     def __init__(self, master):
         super().__init__(master)
 
@@ -66,7 +66,7 @@ class View(mvc.View):
         self.create_grouped_button('Settings', 'Restore', 'Restore filters')
 
 
-class Model(mvc.Model):
+class Model(mvc.ModelOld):
     filter_data: List[Dict[str, any]]
 
     def __init__(self):
@@ -87,7 +87,7 @@ class Model(mvc.Model):
         self.settings['filters'] = self.filter_data
 
 
-class Controller(mvc.Controller):
+class Controller(mvc.ControllerOld):
     def __init__(self, master, interface: TaskInterface):
         self.interface = interface
         self.model = Model()

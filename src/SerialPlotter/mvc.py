@@ -7,7 +7,7 @@ from . import files
 from .manager import TaskInterface
 
 
-class View(tk.Frame):
+class ViewOld(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.frames: Dict[str, tk.Frame] = {}
@@ -207,7 +207,7 @@ def _scrolling_event(tk_var: tk.StringVar, multiplier: float = 1):
     return scrolling
 
 
-class Model:
+class ModelOld:
     settings: Dict[str, any]
 
     def __init__(self, name):
@@ -240,7 +240,7 @@ class Model:
         self.settings = interface.application_settings[self.__name]
 
 
-class Controller:
+class ControllerOld:
     @abc.abstractmethod
     def on_close(self):
         pass
