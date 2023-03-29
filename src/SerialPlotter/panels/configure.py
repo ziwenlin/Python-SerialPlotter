@@ -6,13 +6,15 @@ from ..manager import TaskInterface
 
 class Model(mvc.ModelOld):
     def __init__(self):
-        super(Model, self).__init__('Settings')
+        super(Model, self).__init__('settings')
         self.settings.update({
             'application_name': 'Serial Plotter',
             'graph_x_min': -10,
             'graph_x_max': 510,
             'graph_y_min': -10,
             'graph_y_max': 110,
+            'graph_size': 200,
+            'graph_clear': 50,
         })
 
 
@@ -26,6 +28,9 @@ class View(mvc.ViewOld):
         self.create_label_header('Graph view settings:')
         self.create_ranged_slider('X', 'X-axis range:', [-1000, 10000, 1])
         self.create_ranged_slider('Y', 'Y-axis range:', [-1000, 10000, 1])
+
+        self.create_spinbox('Size', 'Graph size', [1, 10000, 100])
+        self.create_spinbox('Clear', 'Clear size', [1, 10000, 100])
 
         self.create_group('Buttons')
         self.create_grouped_button('Buttons', 'Save', 'Save settings')
@@ -56,6 +61,9 @@ class Controller(mvc.ControllerOld):
         settings['graph_y_min'] = self.view.scales['YMin'].get()
         settings['graph_y_max'] = self.view.scales['YMax'].get()
 
+        settings['graph_size'] = self.view.spin_boxes['Size'].get()
+        settings['graph_clear'] = self.view.spin_boxes['Clear'].get()
+
     def update_view(self):
         settings = self.model.settings
         self.view.entries['Window'].delete(0, tk.END)
@@ -67,8 +75,12 @@ class Controller(mvc.ControllerOld):
         self.view.scales['YMin'].set(settings['graph_y_min'])
         self.view.scales['YMax'].set(settings['graph_y_max'])
 
+        self.view.spin_boxes['Size'].set(settings['graph_size'])
+        self.view.spin_boxes['Clear'].set(settings['graph_clear'])
+
     def on_close(self):
-        pass
+        self.update_model()
+        self.model.save()
 
     def command_save(self):
         self.update_model()
