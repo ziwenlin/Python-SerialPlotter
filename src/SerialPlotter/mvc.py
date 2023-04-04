@@ -294,18 +294,26 @@ class Spinbox(tk.Spinbox):
         self.bind('<MouseWheel>', self.scrolling)
         self.configure(textvariable=self.variable)
 
-    def scrolling(self, event: tk.Event):
+    def clip(self, value):
         a, b, c = self.limits
-        value = self.variable.get()
-        try:
-            value = float(value) + c * (event.delta / 120)
-        except ValueError:
-            value = 0
         if value < a:
             value = a
         elif value > b:
             value = b
-        self.variable.set(f'{round(value, 2)}')
+        value = round(value, 2)
+        if float(value).is_integer():
+            value = int(value)
+        return value
+
+    def scrolling(self, event: tk.Event):
+        a, b, c = self.limits
+        text = self.variable.get()
+        try:
+            value = float(text) + c * (event.delta / 120)
+        except ValueError:
+            value = 0
+        value = self.clip(value)
+        self.variable.set(f'{value}')
 
 
 class Button(tk.Button):
