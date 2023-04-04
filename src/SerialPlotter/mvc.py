@@ -272,3 +272,56 @@ class ControllerOld:
     @abc.abstractmethod
     def update_view(self):
         pass
+
+
+class Label(tk.Label):
+    def __init__(self, frame, text):
+        self.variable = tk.StringVar(frame, value=text)
+        super().__init__(frame, anchor='w', padx=10)
+        self.configure(textvariable=self.variable)
+
+class Entry(tk.Entry):
+    def __init__(self, frame, text=''):
+        self.variable = tk.StringVar(frame, value=text)
+        super().__init__(frame, textvariable=self.variable, )
+
+
+class Spinbox(tk.Spinbox):
+    def __init__(self, frame, limits):
+        a, b, c = self.limits = limits
+        self.variable = tk.StringVar(frame, value='0')
+        super().__init__(frame, from_=a, to=b, increment=c, width=3)
+        self.bind('<MouseWheel>', self.scrolling)
+        self.configure(textvariable=self.variable)
+
+    def scrolling(self, event: tk.Event):
+        a, b, c = self.limits
+        value = self.variable.get()
+        try:
+            value = float(value) + c * (event.delta / 120)
+        except ValueError:
+            value = 0
+        if value < a:
+            value = a
+        elif value > b:
+            value = b
+        self.variable.set(f'{round(value, 2)}')
+
+
+class Button(tk.Button):
+    def __init__(self, frame, text='button'):
+        super().__init__(frame, text=text)
+        self.command = lambda: None
+        self.configure(anchor='center', padx=8, pady=4)
+        self.configure(command=lambda: self.command())
+
+
+class ViewBase:
+
+    def __init__(self, master):
+        self.frame = tk.Frame(master, padx=5, pady=5)
+        self.master = master
+        self.labels: dict[str, Label] = {}
+        self.entries: dict[str, Entry] = {}
+        self.spinboxes: dict[str, Spinbox] = {}
+        self.buttons: dict[str, Button] = {}
