@@ -3,4 +3,4 @@
 /example/*
 /backup/*
 /data/*
-/settings.json
+**/settings.json
