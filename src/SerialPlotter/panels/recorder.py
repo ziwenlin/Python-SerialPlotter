@@ -6,6 +6,100 @@ from .. import mvc
 from ..manager import TaskInterface
 
 
+class ViewNew(mvc.ViewBase):
+    def __init__(self, master):
+        super().__init__(master)
+        expand_cnf = {'sticky': 'ns' + 'we'}
+
+        # widget containers
+        label = self.labels
+        entry = self.entries
+        button = self.buttons
+        checkbox = self.checkboxes
+
+        # Layout configuration
+        self.frame.grid_columnconfigure(0, uniform='a')
+        self.frame.grid_columnconfigure(1, uniform='a')
+        self.frame.grid_columnconfigure(2, uniform='a')
+
+        # Label frame with status
+        frame_status = mvc.LabelFrame(self.frame, 'Recorder status')
+        frame_status.grid_configure(row=0, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
+        label['Status'] = mvc.Label(frame_status, 'Standby')
+        label['Status'].pack(fill='both', expand=True, pady=(5, 10))
+
+        # Label frame
+        frame_recorder_controls = mvc.LabelFrame(self.frame, 'Recorder controls')
+        frame_recorder_controls.grid_configure(row=2, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
+        frame_recorder_controls.grid_columnconfigure(0, uniform='a', weight=1)
+        frame_recorder_controls.grid_columnconfigure(1, uniform='a', weight=1)
+        frame_recorder_controls.grid_columnconfigure(2, uniform='a', weight=1)
+
+        # Buttons
+        button['start'] = mvc.Button(frame_recorder_controls, 'Start')
+        button['pause'] = mvc.Button(frame_recorder_controls, 'Pause')
+        button['save'] = mvc.Button(frame_recorder_controls, 'Save')
+        button['start'].grid_configure(row=0, column=0, cnf=expand_cnf)
+        button['pause'].grid_configure(row=0, column=1, cnf=expand_cnf)
+        button['save'].grid_configure(row=0, column=2, cnf=expand_cnf)
+
+        # Label frame
+        frame_directory = mvc.LabelFrame(self.frame, 'Directory settings')
+        frame_directory.grid_configure(row=4, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
+        frame_directory.grid_columnconfigure(0, uniform='a', weight=1)
+        frame_directory.grid_columnconfigure(1, uniform='a', weight=1)
+        frame_directory.grid_columnconfigure(2, uniform='a', weight=1)
+
+        # Entries with a label
+        entry['file_name'] = mvc.LabeledEntry(frame_directory, 'Recording file name')
+        entry['directory_data'] = mvc.LabeledEntry(frame_directory, 'Directory for recordings')
+        entry['directory_backup'] = mvc.LabeledEntry(frame_directory, 'Directory for backups')
+        entry['file_name'].grid_configure(row=0, column=0, columnspan=5, cnf=expand_cnf)
+        entry['directory_data'].grid_configure(row=1, column=0, columnspan=5, cnf=expand_cnf)
+        entry['directory_backup'].grid_configure(row=2, column=0, columnspan=5, cnf=expand_cnf)
+
+        # Label frame
+        frame_directory_controls = mvc.LabelFrame(self.frame, 'Directory controls')
+        frame_directory_controls.grid_configure(row=6, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
+        frame_directory_controls.grid_columnconfigure(0, weight=1, uniform='a')
+        frame_directory_controls.grid_columnconfigure(1, weight=1, uniform='a')
+
+        # Buttons
+        button['directory_data'] = mvc.Button(frame_directory_controls, 'Choose data directory')
+        button['directory_backup'] = mvc.Button(frame_directory_controls, 'Choose backup directory')
+        button['open_data'] = mvc.Button(frame_directory_controls, 'Open data directory')
+        button['open_backup'] = mvc.Button(frame_directory_controls, 'Open backup directory')
+        button['directory_data'].grid_configure(row=0, column=0, cnf=expand_cnf)
+        button['directory_backup'].grid_configure(row=0, column=1, cnf=expand_cnf)
+        button['open_data'].grid_configure(row=1, column=0, cnf=expand_cnf)
+        button['open_backup'].grid_configure(row=1, column=1, cnf=expand_cnf)
+
+        # Label frame
+        frame_settings = mvc.LabelFrame(self.frame, 'Recorder settings')
+        frame_settings.grid_configure(row=8, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
+
+        # Checkboxes
+        checkbox['auto_save'] = mvc.Checkbox(frame_settings, 'Automatically save data when recording')
+        checkbox['file_append'] = mvc.Checkbox(frame_settings, 'Append recorder save file data when saving manually')
+        checkbox['file_overwrite'] = mvc.Checkbox(frame_settings,
+                                                  'Overwrite recorder save file data when saving manually')
+        checkbox['auto_save'].pack(anchor='w')
+        checkbox['file_append'].pack(anchor='w')
+        checkbox['file_overwrite'].pack(anchor='w')
+
+        # Label frame
+        frame_settings_controls = mvc.LabelFrame(self.frame)
+        frame_settings_controls.grid_configure(row=10, rowspan=2, columnspan=3, column=0, cnf=expand_cnf)
+        frame_settings_controls.grid_columnconfigure(0, weight=1, uniform='a')
+        frame_settings_controls.grid_columnconfigure(1, weight=1, uniform='a')
+
+        # Buttons
+        button['settings_save'] = mvc.Button(frame_settings_controls, 'Save settings')
+        button['settings_restore'] = mvc.Button(frame_settings_controls, 'Restore settings')
+        button['settings_save'].grid_configure(row=0, column=0, cnf=expand_cnf)
+        button['settings_restore'].grid_configure(row=0, column=1, cnf=expand_cnf)
+
+
 class View(mvc.ViewOld):
     def __init__(self, master):
         super().__init__(master)
