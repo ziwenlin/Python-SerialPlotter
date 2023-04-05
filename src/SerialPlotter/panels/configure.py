@@ -22,7 +22,6 @@ class View(mvc.ViewBase):
     def __init__(self, master):
         super().__init__(master)
         expand_cnf = {'sticky': 'ns' + 'we'}
-        frame_cnf = {'padx': 5, 'pady': 5}
 
         # widget containers
         label = self.labels
@@ -37,7 +36,7 @@ class View(mvc.ViewBase):
         self.frame.grid_rowconfigure(99, weight=1)
 
         # Frame for application settings
-        frame_application = tk.LabelFrame(self.frame, text='Application settings', cnf=frame_cnf)
+        frame_application = mvc.LabelFrame(self.frame, 'Application settings')
         frame_application.grid_configure(row=0, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
         frame_application.columnconfigure(0, uniform='a', weight=1)
         frame_application.columnconfigure(1, uniform='a', weight=1)
@@ -51,7 +50,7 @@ class View(mvc.ViewBase):
         entry['app_title'].grid_configure(cnf=expand_cnf)
 
         # Frame for graph view settings
-        frame_graph = tk.LabelFrame(self.frame, text='Graph view settings', cnf=frame_cnf)
+        frame_graph = mvc.LabelFrame(self.frame, text='Graph view settings')
         frame_graph.grid_configure(row=2, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
         frame_graph.columnconfigure(0, uniform='a', weight=1)
         frame_graph.columnconfigure(1, uniform='a', weight=1)
@@ -64,8 +63,8 @@ class View(mvc.ViewBase):
         label['graph_max'] = mvc.Label(frame_graph, 'Maximum')
         label['graph_min'].grid_configure(row=0, column=1)
         label['graph_max'].grid_configure(row=0, column=2)
-        label['graph_x_axis'].grid_configure(row=1)
-        label['graph_y_axis'].grid_configure(row=2)
+        label['graph_x_axis'].grid_configure(row=1, sticky='w')
+        label['graph_y_axis'].grid_configure(row=2, sticky='w')
 
         # Contents graph view settings
         spinbox['graph_x_min'] = mvc.Spinbox(frame_graph, (-1000, 0, 10))
@@ -78,7 +77,7 @@ class View(mvc.ViewBase):
         spinbox['graph_y_max'].grid_configure(row=2, column=2, cnf=expand_cnf)
 
         # Frame for graph data settings
-        frame_data = tk.LabelFrame(self.frame, text='Graph data settings', cnf=frame_cnf)
+        frame_data = mvc.LabelFrame(self.frame, text='Graph data settings')
         frame_data.grid_configure(row=4, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
         frame_data.columnconfigure(0, uniform='a', weight=1)
         frame_data.columnconfigure(1, uniform='a', weight=1)
@@ -87,8 +86,8 @@ class View(mvc.ViewBase):
         # Contents of graph data settings frame
         label['graph_data_size'] = mvc.Label(frame_data, 'Total of points')
         label['graph_clear_size'] = mvc.Label(frame_data, 'Clear amount')
-        label['graph_data_size'].grid_configure(row=3)
-        label['graph_clear_size'].grid_configure(row=4)
+        label['graph_data_size'].grid_configure(row=3, sticky='w')
+        label['graph_clear_size'].grid_configure(row=4, sticky='w')
 
         # Contents of graph data settings frame
         spinbox['graph_data_size'] = mvc.Spinbox(frame_data, (10, 10000, 10))
