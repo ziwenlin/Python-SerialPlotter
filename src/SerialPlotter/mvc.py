@@ -6,6 +6,8 @@ from typing import Dict
 from . import files
 from .manager import TaskInterface
 
+CNF_FRAME = {'padx': 10, 'pady': 10}
+
 
 class ViewOld(tk.Frame):
     def __init__(self, master):
@@ -274,16 +276,41 @@ class ControllerOld:
         pass
 
 
+class LabelFrame(tk.LabelFrame):
+    def __init__(self, frame, text=''):
+        super().__init__(frame, text=text, cnf=CNF_FRAME)
+
+
 class Label(tk.Label):
     def __init__(self, frame, text):
         self.variable = tk.StringVar(frame, value=text)
         super().__init__(frame, anchor='w', padx=10)
         self.configure(textvariable=self.variable)
 
+
 class Entry(tk.Entry):
     def __init__(self, frame, text=''):
         self.variable = tk.StringVar(frame, value=text)
         super().__init__(frame, textvariable=self.variable, )
+
+
+class LabeledEntry(Entry):
+    def __init__(self, frame, label, text=''):
+        self.frame = tk.Frame(frame)
+        self.frame.grid_columnconfigure(0, weight=1, uniform='a')
+        self.frame.grid_columnconfigure(1, weight=1, uniform='a')
+        self.frame.grid_columnconfigure(2, weight=1, uniform='a')
+        self.label = Label(self.frame, label)
+        self.label.grid_configure(row=0, column=0, sticky='w')
+        super().__init__(self.frame, text)
+        super().grid_configure(row=0, column=1, columnspan=2, sticky='ns' + 'we')
+        self.grid_configure = self.frame.grid_configure
+
+
+class Checkbox(tk.Checkbutton):
+    def __init__(self, frame, text='text'):
+        self.variable = tk.IntVar(frame, value=0)
+        super().__init__(frame, text=text, variable=self.variable)
 
 
 class Spinbox(tk.Spinbox):
@@ -325,11 +352,11 @@ class Button(tk.Button):
 
 
 class ViewBase:
-
     def __init__(self, master):
-        self.frame = tk.Frame(master, padx=5, pady=5)
+        self.frame = tk.Frame(master, cnf=CNF_FRAME)
         self.master = master
         self.labels: dict[str, Label] = {}
         self.entries: dict[str, Entry] = {}
         self.spinboxes: dict[str, Spinbox] = {}
+        self.checkboxes: dict[str, Checkbox] = {}
         self.buttons: dict[str, Button] = {}
