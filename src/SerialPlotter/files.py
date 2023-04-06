@@ -1,5 +1,8 @@
 import datetime
 import json
+import os
+import tkinter as tk
+import webbrowser
 from pathlib import Path
 
 import pandas
@@ -33,6 +36,22 @@ def json_save(settings: dict):
     with open(SETTINGS_FILE, 'w+') as jsf:
         js = json.dumps(settings, indent=1)
         jsf.write(js)
+
+
+def open_directory(path):
+    if path[0] in '.':
+        program_path = os.getcwd()
+        path = path.replace('.', program_path, 1)
+    webbrowser.open(path)
+
+
+def ask_directory():
+    path = tk.filedialog.askdirectory(initialdir='./')
+    if path == '':
+        return path
+    program_path = os.getcwd().replace('\\', '/')
+    path = path.replace(program_path, '.') + '/'
+    return path
 
 
 def csv_writer(file_path, data, mode):

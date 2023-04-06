@@ -1,8 +1,4 @@
-import os
-import tkinter as tk
-import tkinter.filedialog
-
-from .. import mvc
+from .. import mvc, files
 from ..manager import TaskInterface
 
 
@@ -128,6 +124,8 @@ class Controller(mvc.ControllerOld):
         self.view.buttons['pause'].command = self.command_pause
         self.view.buttons['directory_data'].command = self.command_directory_data
         self.view.buttons['directory_backup'].command = self.command_directory_backup
+        self.view.buttons['open_data'].command = self.command_open_data
+        self.view.buttons['open_backup'].command = self.command_open_backup
         self.view.buttons['settings_save'].command = self.command_settings
         self.view.buttons['settings_restore'].command = self.update_view
 
@@ -171,20 +169,24 @@ class Controller(mvc.ControllerOld):
         self.view.labels['status'].set(text)
 
     def command_directory_data(self):
-        path = tk.filedialog.askdirectory(initialdir='./')
+        path = files.ask_directory()
         if path == '':
             return
-        program_path = os.getcwd().replace('\\', '/')
-        path = path.replace(program_path, '.') + '/'
         self.view.entries['directory_data'].set(path)
 
     def command_directory_backup(self):
-        path = tk.filedialog.askdirectory(initialdir='./')
+        path = files.ask_directory()
         if path == '':
             return
-        program_path = os.getcwd().replace('\\', '/')
-        path = path.replace(program_path, '.') + '/'
         self.view.entries['directory_backup'].set(path)
+
+    def command_open_data(self):
+        path = self.view.entries['directory_data'].get()
+        files.open_directory(path)
+
+    def command_open_backup(self):
+        path = self.view.entries['directory_backup'].get()
+        files.open_directory(path)
 
     def command_settings(self):
         file_name = self.view.entries['file_name'].get()
