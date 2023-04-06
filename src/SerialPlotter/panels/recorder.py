@@ -6,7 +6,7 @@ from .. import mvc
 from ..manager import TaskInterface
 
 
-class ViewNew(mvc.ViewBase):
+class View(mvc.ViewBase):
     def __init__(self, master):
         super().__init__(master)
         expand_cnf = {'sticky': 'ns' + 'we'}
@@ -25,8 +25,8 @@ class ViewNew(mvc.ViewBase):
         # Label frame with status
         frame_status = mvc.LabelFrame(self.frame, 'Recorder status')
         frame_status.grid_configure(row=0, column=0, rowspan=2, columnspan=3, cnf=expand_cnf)
-        label['Status'] = mvc.Label(frame_status, 'Standby')
-        label['Status'].pack(fill='both', expand=True, pady=(5, 10))
+        label['status'] = mvc.Label(frame_status, 'Standby')
+        label['status'].pack(fill='both', expand=True, pady=(5, 10))
 
         # Label frame
         frame_recorder_controls = mvc.LabelFrame(self.frame, 'Recorder controls')
@@ -100,43 +100,6 @@ class ViewNew(mvc.ViewBase):
         button['settings_restore'].grid_configure(row=0, column=1, cnf=expand_cnf)
 
 
-class View(mvc.ViewOld):
-    def __init__(self, master):
-        super().__init__(master)
-
-        # Recorder status
-        # Label which will list the recorder status
-        # Controller logic will update this text
-        self.create_label_header('Recorder status:')
-        self.create_label('Status', 'Standby')
-
-        # Recorder controls
-        # Buttons which controls the recorder
-        self.create_label_header('Recorder controls:')
-        self.create_group('Controls')
-        self.create_grouped_button('Controls', 'Start', 'Start')
-        self.create_grouped_button('Controls', 'Pause', 'Pause')
-        self.create_grouped_button('Controls', 'Save', 'Save')
-
-        # File name entry with button to save
-        self.create_label_header('Recorder settings:')
-        self.create_labeled_entry('File', 'File name:')
-        self.create_labeled_entry('Folder', 'Data directory:')
-        self.create_labeled_entry('Backup', 'Backup directory:')
-        self.create_group('Directory')
-        self.create_grouped_button('Directory', 'Folder', 'Choose data directory')
-        self.create_grouped_button('Directory', 'Backup', 'Choose backup directory')
-
-        # Recorder settings
-        self.create_label_header('Recorder settings:')
-        self.create_check_button('Auto save', 'Automatically save data when recording')
-        self.create_check_button('File append', 'Append recorder save file data when saving manually')
-        self.create_check_button('File overwrite', 'Overwrite recorder save file data when saving manually')
-
-        # Save recorder settings
-        self.create_button('Settings', 'Save settings')
-
-
 class Model(mvc.ModelOld):
     def __init__(self):
         super().__init__('recorder')
@@ -156,16 +119,17 @@ class Controller(mvc.ControllerOld):
         self.model = Model()
         self.model.bind(interface)
         self.view = View(master)
-        self.view.pack(fill='both', side='left', padx=5, pady=5)
-        self.view.after(500, self.command_settings)
-        self.view.after(2000, lambda: self.view.update_label('Status', 'Standby'))
+        self.view.frame.pack(fill='both', side='left', padx=5, pady=5)
+        self.view.frame.after(1000, lambda: self.command_settings())
+        self.view.frame.after(2000, lambda: self.update_status('Standby'))
 
-        self.view.bind_button('Save', self.command_save)
-        self.view.bind_button('Start', self.command_start)
-        self.view.bind_button('Pause', self.command_pause)
-        self.view.bind_button('Settings', self.command_settings)
-        self.view.bind_button('Folder', self.command_directory_data)
-        self.view.bind_button('Backup', self.command_directory_backup)
+        self.view.buttons['save'].command = self.command_save
+        self.view.buttons['start'].command = self.command_start
+        self.view.buttons['pause'].command = self.command_pause
+        self.view.buttons['directory_data'].command = self.command_directory_data
+        self.view.buttons['directory_backup'].command = self.command_directory_backup
+        self.view.buttons['settings_save'].command = self.command_settings
+        self.view.buttons['settings_restore'].command = self.update_view
 
         self.model.load()
         self.update_view()
@@ -178,100 +142,96 @@ class Controller(mvc.ControllerOld):
 
     def update_model(self):
         settings = self.model.settings
-        settings['file_name'] = self.view.entries['File'].get()
-        settings['data_dir'] = self.view.entries['Folder'].get()
-        settings['backup_dir'] = self.view.entries['Backup'].get()
-        settings['auto_save'] = self.view.check_buttons['Auto save'].get()
-        settings['file_append'] = self.view.check_buttons['File append'].get()
-        settings['file_overwrite'] = self.view.check_buttons['File overwrite'].get()
+        settings['file_name'] = self.view.entries['file_name'].get()
+        settings['data_dir'] = self.view.entries['directory_data'].get()
+        settings['backup_dir'] = self.view.entries['directory_backup'].get()
+        settings['auto_save'] = self.view.checkboxes['auto_save'].variable.get()
+        settings['file_append'] = self.view.checkboxes['file_append'].variable.get()
+        settings['file_overwrite'] = self.view.checkboxes['file_overwrite'].variable.get()
 
     def update_view(self):
         settings = self.model.settings
-        self.view.entries['File'].delete(0, tk.END)
-        self.view.entries['File'].insert(0, settings['file_name'])
-        self.view.entries['Folder'].delete(0, tk.END)
-        self.view.entries['Folder'].insert(0, settings['data_dir'])
-        self.view.entries['Backup'].delete(0, tk.END)
-        self.view.entries['Backup'].insert(0, settings['backup_dir'])
-        self.view.check_buttons['Auto save'].set(settings['auto_save'])
-        self.view.check_buttons['File append'].set(settings['file_append'])
-        self.view.check_buttons['File overwrite'].set(settings['file_overwrite'])
+        self.view.entries['file_name'].variable.set(settings['file_name'])
+        self.view.entries['directory_data'].variable.set(settings['data_dir'])
+        self.view.entries['directory_backup'].variable.set(settings['backup_dir'])
+        self.view.checkboxes['auto_save'].variable.set(settings['auto_save'])
+        self.view.checkboxes['file_append'].variable.set(settings['file_append'])
+        self.view.checkboxes['file_overwrite'].variable.set(settings['file_overwrite'])
 
-    def update_display_status(self):
+    def update_status_loop(self):
         status = ''
         while not self.queue_status.empty():
             status += self.queue_status.get() + '\n'
         if status == '':
-            self.view.after(500, self.update_display_status)
+            self.view.frame.after(500, self.update_status_loop)
             return
-        self.view.update_label('Status', status[:-1])
+        self.update_status(status[:-1])
+
+    def update_status(self, text):
+        self.view.labels['status'].set(text)
 
     def command_directory_data(self):
-        entry = self.view.entries['Folder']
         path = tk.filedialog.askdirectory(initialdir='./')
         if path == '':
             return
         program_path = os.getcwd().replace('\\', '/')
         path = path.replace(program_path, '.') + '/'
-        entry.delete(0, tk.END)
-        entry.insert(0, path)
+        self.view.entries['directory_data'].set(path)
 
     def command_directory_backup(self):
-        entry = self.view.entries['Backup']
         path = tk.filedialog.askdirectory(initialdir='./')
         if path == '':
             return
         program_path = os.getcwd().replace('\\', '/')
         path = path.replace(program_path, '.') + '/'
-        entry.delete(0, tk.END)
-        entry.insert(0, path)
+        self.view.entries['directory_backup'].set(path)
 
     def command_settings(self):
-        file_name = self.view.entries['File'].get()
+        file_name = self.view.entries['file_name'].get()
         self.queue_command.put('file_name ' + file_name.replace(' ', '_'))
 
-        data_dir = self.view.entries['Folder'].get()
+        data_dir = self.view.entries['directory_data'].get()
         self.queue_command.put('data_dir ' + data_dir.replace(' ', '%'))
 
-        data_dir = self.view.entries['Backup'].get()
+        data_dir = self.view.entries['directory_backup'].get()
         self.queue_command.put('backup_dir ' + data_dir.replace(' ', '%'))
 
-        state_auto_save = self.view.check_buttons['Auto save'].get() == 1
+        state_auto_save = self.view.checkboxes['auto_save'].get()
         if state_auto_save is True:
             command = 'auto_save enable'
         else:
             command = 'auto_save disable'
         self.queue_command.put(command)
 
-        self.view.winfo_toplevel().event_generate('<<UpdateRecorder>>')
-        self.view.after(500, self.update_display_status)
+        self.update_status_loop()
+        self.view.frame.winfo_toplevel().event_generate('<<UpdateRecorder>>')
 
     def command_save(self):
-        state_auto_save = self.view.check_buttons['Auto save'].get() == 1
-        state_file_append = self.view.check_buttons['File append'].get() == 1
-        state_file_overwrite = self.view.check_buttons['File overwrite'].get() == 1
+        state_auto_save = self.view.checkboxes['auto_save'].get()
+        state_file_append = self.view.checkboxes['file_append'].get()
+        state_file_overwrite = self.view.checkboxes['file_overwrite'].get()
 
         if state_auto_save is True:
-            self.view.update_label('Status', 'Manually saving is disabled')
+            self.update_status('Manually saving is disabled')
             return
         elif state_file_append is True:
-            self.view.after(500, self.update_display_status)
+            self.update_status_loop()
             self.queue_command.put('recorder save')
             return
         elif state_file_overwrite is True:
-            self.view.after(500, self.update_display_status)
+            self.update_status_loop()
             self.queue_command.put('recorder overwrite')
             return
         # No settings known is default to nothing
-        self.view.update_label('Status', 'Standby')
+        self.update_status('Standby')
         return
 
     def command_start(self):
+        self.update_status('Waiting for response...')
+        self.update_status_loop()
         self.queue_command.put('recorder start')
-        self.view.after(500, self.update_display_status)
-        self.view.update_label('Status', 'Waiting for response...')
 
     def command_pause(self):
+        self.update_status('Waiting for response...')
+        self.update_status_loop()
         self.queue_command.put('recorder pause')
-        self.view.after(500, self.update_display_status)
-        self.view.update_label('Status', 'Waiting for response...')
