@@ -287,12 +287,22 @@ class Label(tk.Label):
         super().__init__(frame, anchor='w', padx=10)
         self.configure(textvariable=self.variable)
 
+    def set(self, text):
+        wrap = self.winfo_width() - 20
+        font = tk.font.nametofont(self['font'])
+        text_height = sum([font.measure(t) // wrap for t in text.split('\n')])
+        label_height = text.count('\n') + text_height + 1
+        self.config(height=label_height, wraplength=wrap)
+        self.variable.set(text)
+
 
 class Entry(tk.Entry):
     def __init__(self, frame, text=''):
         self.variable = tk.StringVar(frame, value=text)
         super().__init__(frame, textvariable=self.variable, )
 
+    def set(self, text):
+        self.variable.set(value=text)
 
 class LabeledEntry(Entry):
     def __init__(self, frame, label, text=''):
@@ -312,6 +322,12 @@ class Checkbox(tk.Checkbutton):
         self.variable = tk.IntVar(frame, value=0)
         super().__init__(frame, text=text, variable=self.variable)
 
+    def get(self):
+        return self.variable.get() == 1
+
+    def set(self, value: int):
+        self.variable.set(value)
+
 
 class Spinbox(tk.Spinbox):
     def __init__(self, frame, limits):
@@ -320,6 +336,9 @@ class Spinbox(tk.Spinbox):
         super().__init__(frame, from_=a, to=b, increment=c, width=3)
         self.bind('<MouseWheel>', self.scrolling)
         self.configure(textvariable=self.variable)
+
+    def set(self, value):
+        self.variable.set(value=value)
 
     def clip(self, value):
         a, b, c = self.limits
