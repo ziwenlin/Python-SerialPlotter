@@ -3,7 +3,7 @@ import threading
 import time
 from typing import List
 
-from SerialPlotter import files
+from . import files
 
 
 class StorageInterace:
