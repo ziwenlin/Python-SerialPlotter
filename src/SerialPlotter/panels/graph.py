@@ -13,6 +13,7 @@ from ..manager import TaskInterface
 class GraphFrame(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
+
         # Create figure so graphs can be plotted
         self.figure = Figure(figsize=(9, 5))
         self.figure.subplots_adjust(0.05, 0.08, 0.97, 0.95)
@@ -75,8 +76,28 @@ class Model(mvc.ModelOld):
         self.filters = self.settings['filters']['filters']
 
 
-class Controller(mvc.ControllerOld):
+class WindowDrag:
+    def __init__(self, master):
+        self.window_drag_task_id = ''
+        self.root = master.winfo_toplevel()
+        self.root.bind('<Configure>', self.window_drag_event, add='+')
+
+    def window_drag_event(self, event: tk.Event):
+        if event.widget is self.root:
+            if self.window_isdrag():
+                self.root.after_cancel(self.window_drag_task_id)
+            self.window_drag_task_id = self.root.after(200, self.window_undrag)
+
+    def window_isdrag(self):
+        return self.window_drag_task_id != ''
+
+    def window_undrag(self):
+        self.window_drag_task_id = ''
+
+
+class Controller(mvc.ControllerOld, WindowDrag):
     def __init__(self, master, interface: TaskInterface):
+        super().__init__(master)
         self.interface = interface
         self.model = Model()
         self.model.bind(interface)
@@ -92,7 +113,15 @@ class Controller(mvc.ControllerOld):
 
     def update_loop(self):
         queue_state = not self.queue_data.empty()
-        while not self.queue_data.empty():
+        if self.window_isdrag() is True:
+            self.view.after(100, self.update_loop)
+            return
+        # Force update the plot when 50 samples behind
+        if self.queue_data.qsize() > 10:
+            while not self.queue_data.empty():
+                values = self.queue_data.get()
+                self.update_model_data(values)
+        if not self.queue_data.empty():
             values = self.queue_data.get()
             self.update_model_data(values)
         # This reduces cpu usage

@@ -149,7 +149,7 @@ class SerialThread(threading.Thread):
                 self.converter.update()
             for message in self.interface.get_items('out'):
                 self.serial.write(message)
-            sleep(0.01)
+            sleep(0.001)
         # Close serial connection when the main program wants to exit
         self.serial.disconnect()
 
@@ -227,7 +227,7 @@ class SerialInterface:
             'command': [],  # Command messages to the controller
         }
 
-    def create_queue(self, name: str, max_size=100):
+    def create_queue(self, name: str, max_size=1000):
         if name not in self.queues:
             return
         new_queue = queue.Queue(max_size)
@@ -239,6 +239,8 @@ class SerialInterface:
             return
         current_queues = self.queues[name]
         for q in current_queues:
+            if q.full():
+                continue
             q.put(item, False)
 
     def get_items(self, name: str):
@@ -260,6 +262,7 @@ class SerialHandler:
         self.serial = serial.Serial()
         self.is_connected = threading.Event()
         self.is_debug = False
+        self.time_debug = 0
 
     def available(self):
         """
@@ -270,9 +273,8 @@ class SerialHandler:
         if not self.is_connected.is_set():
             return 0
         if self.is_debug is True:
-            randint = random.Random().random() * 1.5
-            sleep(0.2)
-            return int(randint)
+            self.time_debug += 1
+            return self.time_debug - 3
         return self.serial.inWaiting()
 
     def connect(self, name):
@@ -325,6 +327,7 @@ class SerialHandler:
         if not self.is_connected.is_set():
             return
         if self.is_debug:
+            self.time_debug = 0
             rand = random.Random()
             return f'{rand.random()}\t{rand.random()}\t{rand.random()}\n'
         buffer = self.serial.read(32)
