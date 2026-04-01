@@ -1,6 +1,7 @@
-/venv/*
+/venv/
 /.idea/*
 /example/*
 /backup/*
 /data/*
 **/settings.json
+*.pyc
